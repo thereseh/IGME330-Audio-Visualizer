@@ -42,11 +42,18 @@
         var invert = false, noise = false;
         var desat = 0.0;
         var equalizerRotation = 0, rotationIncrement = 2*Math.PI/400;
+        var waveGrad, data, waveformData;
         
         function init(){
             // set up canvas stuff
             canvas = document.querySelector('canvas');
             ctx = canvas.getContext("2d");
+            
+            waveGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            waveGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
+            waveGrad.addColorStop(1/3, "white");
+            waveGrad.addColorStop(2/3, "white");
+            waveGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
             
             // get reference to <audio> element on page
             audioElement = document.querySelector('audio');
@@ -140,41 +147,31 @@
             */
             
             // create a new array of 8-bit integers (0-255)
-            var data = new Uint8Array(NUM_SAMPLES/2); 
+            data = new Uint8Array(NUM_SAMPLES/2); 
+            waveformData = new Uint8Array(NUM_SAMPLES/2); 
+            
             
             // populate the array with the frequency data
             // notice these arrays can be passed "by reference" 
             analyserNode.getByteFrequencyData(data);
         
             // OR
-            //analyserNode.getByteTimeDomainData(data); // waveform data
+            analyserNode.getByteTimeDomainData(waveformData); // waveform data
+            
+            for(var i=0; i<waveformData.length; i++) 
+                waveformData[i] *= 3;
             
             maxRadius = document.querySelector("#maxRadius").value;
             desat = document.querySelector("#desat").value/100;
             
             // DRAW!
             ctx.clearRect(0,0,canvas.width,canvas.height);  
-            var barWidth = 4;
-            var barSpacing = 1;
-            var barHeight = 100;
-            var topSpacing = 35;
             
-            ctx.save();
+            drawEqualizer();
             
-            ctx.translate(canvas.width/2, canvas.height/2);
-
-            ctx.rotate(equalizerRotation);
-            equalizerRotation += rotationIncrement;
-            ctx.fillStyle = 'rgba(240, 127, 255, 0.67)'; 
-
-            // loop through the data and draw!
-            for(var i=0; i<data.length; i++) { 
-                ctx.rotate(Math.PI*2/data.length);
-                ctx.fillRect(topSpacing, 0, 60 + data[i], barWidth);
-            }
-            ctx.restore();
+            drawWaveform();
             
-            //manipulatePixels();
+//            manipulatePixels();
              
         } 
         
@@ -197,6 +194,36 @@
             }
             // .. and do nothing if the method is not supported
         };
+        
+        function drawEqualizer(){
+            var barWidth = 4;
+            var innerRadius = 35;
+            ctx.save();
+            ctx.translate(canvas.width/2, canvas.height/2);
+            ctx.rotate(equalizerRotation);
+            equalizerRotation += rotationIncrement;
+            ctx.fillStyle = 'rgba(240, 127, 255, 0.67)'; 
+
+            // loop through the data and draw!
+            for(var i=0; i<data.length; i++) { 
+                ctx.rotate(Math.PI*2/data.length);
+                ctx.fillRect(innerRadius, 0, 60 + data[i], barWidth);
+            }
+            ctx.restore();
+        }
+        
+        function drawWaveform(){
+            ctx.save();
+            ctx.strokeStyle = waveGrad;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height/2);
+            for(var i=0; i<waveformData.length; i++){
+                ctx.lineTo(i*canvas.width/waveformData.length, 200+ waveformData[i]);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
         
         function manipulatePixels(){
             //i) Get all of the rgba pixel data of the canvas by grabbing the ImageData Object
