@@ -36,6 +36,7 @@
         var SOUND_2 = 'media/Peanuts Theme.mp3';
         var SOUND_3 = 'media/The Picard Song.mp3';
         var SOUND_
+
         var audioElement;
         var analyserNode;
         var canvas,ctx;
@@ -168,6 +169,7 @@
             // DRAW!
             ctx.clearRect(0,0,canvas.width,canvas.height);  
             
+<<<<<<< HEAD
 
             ctx.save();
             
@@ -268,7 +270,6 @@
             ctx.restore();
         }
         
-        
         // using bezier curve to create the flower shape
         function drawCurves(color, scale, transX, transY) {
            
@@ -320,7 +321,6 @@
                   
          ctx.restore();
     }
-        
         function manipulatePixels(){
             //i) Get all of the rgba pixel data of the canvas by grabbing the ImageData Object
             // https://developer.mozilla.org/en-US/docs/Web/API/ImageData
