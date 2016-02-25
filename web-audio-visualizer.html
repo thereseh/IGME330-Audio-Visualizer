@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<title>Web Audio Visualizer</title>
-	<style>
-	body {
+    <meta charset="utf-8" />
+    <title>Web Audio Visualizer</title>
+    <style>
+    body {
          background: #eeeeee;
          font-family: tahoma, verdana, sans serif;
       }
@@ -17,6 +17,7 @@
     }
       
       #controls{
+        float: right;
         margin-left:10px;
         margin-top:10px;
       }
@@ -24,268 +25,301 @@
         .checkboxes span{
             margin-right: 17px;
         }
-	</style>
-	<script>
-	// An IIFE ("Iffy") - see the notes in mycourses
-	(function(){
-		"use strict";
-		
-		var NUM_SAMPLES = 256;
-		var SOUND_1 = 'media/New Adventure Theme.mp3';
-		var SOUND_2 = 'media/Peanuts Theme.mp3';
-		var SOUND_3 = 'media/The Picard Song.mp3';
-		var audioElement;
-		var analyserNode;
-		var canvas,ctx;
+    </style>
+    <script>
+    // An IIFE ("Iffy") - see the notes in mycourses
+    (function(){
+        "use strict";
+        
+        var NUM_SAMPLES = 256;
+        var SOUND_1 = 'media/Celldweller - Frozen (Celldweller vs Blue Stahli).mp3';
+        var SOUND_2 = 'media/Peanuts Theme.mp3';
+        var SOUND_3 = 'media/The Picard Song.mp3';
+        var SOUND_
+        var audioElement;
+        var analyserNode;
+        var canvas,ctx;
         var maxRadius = 200;
-		var invert = false, tintRed = false, noise = false, lines = false;
+        var invert = false, noise = false;
         var desat = 0.0;
+        var equalizerRotation = 0, rotationIncrement = 2*Math.PI/400;
+        var waveGrad, data, waveformData, alpha = 1;
         
-        var sum = 0, wavesum = 0, flash = false;
-
+        function init(){
+            // set up canvas stuff
+            canvas = document.querySelector('canvas');
+            ctx = canvas.getContext("2d");
+            
+            waveGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            waveGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
+            waveGrad.addColorStop(1/3, "white");
+            waveGrad.addColorStop(2/3, "white");
+            waveGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+            
+            // get reference to <audio> element on page
+            audioElement = document.querySelector('audio');
+            
+            // call our helper function and get an analyser node
+            analyserNode = createWebAudioContextWithAnalyserNode(audioElement);
+            
+            // get sound track <select> and Full Screen button working
+            setupUI();
+            
+            // load and play default sound into audio element
+            playStream(audioElement,SOUND_1);
+            
+            // start animation loop
+            update();
+        }
         
-		function init(){
-			// set up canvas stuff
-			canvas = document.querySelector('canvas');
-			ctx = canvas.getContext("2d");
-			
-			// get reference to <audio> element on page
-			audioElement = document.querySelector('audio');
-			
-			// call our helper function and get an analyser node
-			analyserNode = createWebAudioContextWithAnalyserNode(audioElement);
-			
-			// get sound track <select> and Full Screen button working
-			setupUI();
-			
-			// load and play default sound into audio element
-			playStream(audioElement,SOUND_1);
-			
-			// start animation loop
-			update();
-		}
-		
-		
-		function createWebAudioContextWithAnalyserNode(audioElement) {
-			var audioCtx, analyserNode, sourceNode;
-			// create new AudioContext
-			// The || is because WebAudio has not been standardized across browsers yet
-			// http://webaudio.github.io/web-audio-api/#the-audiocontext-interface
-			audioCtx = new (window.AudioContext || window.webkitAudioContext);
-			
-			// create an analyser node
-			analyserNode = audioCtx.createAnalyser();
-			
-			/*
-			We will request NUM_SAMPLES number of samples or "bins" spaced equally 
-			across the sound spectrum.
-			
-			If NUM_SAMPLES (fftSize) is 256, then the first bin is 0 Hz, the second is 172 Hz, 
-			the third is 344Hz. Each bin contains a number between 0-255 representing 
-			the amplitude of that frequency.
-			*/ 
-			
-			// fft stands for Fast Fourier Transform
-			analyserNode.fftSize = NUM_SAMPLES;
-			
-			// this is where we hook up the <audio> element to the analyserNode
-			sourceNode = audioCtx.createMediaElementSource(audioElement); 
-			sourceNode.connect(analyserNode);
-			
-			// here we connect to the destination i.e. speakers
-			analyserNode.connect(audioCtx.destination);
-			return analyserNode;
-		}
-		
-		function setupUI(){
-			document.querySelector("#trackSelect").onchange = function(e){
-				playStream(audioElement,e.target.value);
-			};
-			
-			document.querySelector("#fsButton").onclick = function(){
-				requestFullscreen(canvas);
-			};
+        
+        function createWebAudioContextWithAnalyserNode(audioElement) {
+            var audioCtx, analyserNode, sourceNode;
+            // create new AudioContext
+            // The || is because WebAudio has not been standardized across browsers yet
+            // http://webaudio.github.io/web-audio-api/#the-audiocontext-interface
+            audioCtx = new (window.AudioContext || window.webkitAudioContext);
+            
+            // create an analyser node
+            analyserNode = audioCtx.createAnalyser();
+            
+            /*
+            We will request NUM_SAMPLES number of samples or "bins" spaced equally 
+            across the sound spectrum.
+            
+            If NUM_SAMPLES (fftSize) is 256, then the first bin is 0 Hz, the second is 172 Hz, 
+            the third is 344Hz. Each bin contains a number between 0-255 representing 
+            the amplitude of that frequency.
+            */ 
+            
+            // fft stands for Fast Fourier Transform
+            analyserNode.fftSize = NUM_SAMPLES;
+            
+            // this is where we hook up the <audio> element to the analyserNode
+            sourceNode = audioCtx.createMediaElementSource(audioElement); 
+            sourceNode.connect(analyserNode);
+            
+            // here we connect to the destination i.e. speakers
+            analyserNode.connect(audioCtx.destination);
+            return analyserNode;
+        }
+        
+        function setupUI(){
+            document.querySelector("#trackSelect").onchange = function(e){
+                playStream(audioElement,e.target.value);
+            };
+            
+            document.querySelector("#fsButton").onclick = function(){
+                requestFullscreen(canvas);
+            };
             
             document.querySelector("#maxRadius").onchange = function(e){
-			 	 document.querySelector("#sliderResults").innerHTML = e.target.value;
-			 };
-            
-			document.getElementById('red').onchange = function(e){
-                tintRed = e.target.checked;
-			};
+                 document.querySelector("#sliderResults").innerHTML = e.target.value;
+             };
             
             document.getElementById('invert').onchange = function(e){
                 invert = e.target.checked;
-			};
+            };
             
             document.getElementById('noise').onchange = function(e){
                 noise = e.target.checked;
-			};
-            
-            document.getElementById('lines').onchange = function(e){
-                lines = e.target.checked;
-			};
+            };
             
             document.querySelector("#desat").onchange = function(e){
-			 	 document.querySelector("#desatResults").innerHTML = e.target.value+"%";
-			 };
-		}
-		
-		function playStream(audioElement,path){
-			audioElement.src = path;
-			audioElement.play();
-			audioElement.volume = 0.2;
-			document.querySelector('#status').innerHTML = "Now playing: " + path;
-		}
-		
-		function update() { 
-			// this schedules a call to the update() method in 1/60 seconds
-			requestAnimationFrame(update);
-			
-			/*
-				Nyquist Theorem
-				http://whatis.techtarget.com/definition/Nyquist-Theorem
-				The array of data we get back is 1/2 the size of the sample rate 
-			*/
-			
-			// create a new array of 8-bit integers (0-255)
-			var data = new Uint8Array(NUM_SAMPLES/2); 
-            var waveform_data = new Uint8Array(NUM_SAMPLES/2);
-			
-			// populate the array with the frequency data
-			// notice these arrays can be passed "by reference" 
-			analyserNode.getByteFrequencyData(data);
-		
-			// OR
-			//analyserNode.getByteTimeDomainData(data); // waveform data
-            analyserNode.getByteTimeDomainData(waveform_data); // waveform data
+                 document.querySelector("#desatResults").innerHTML = e.target.value+"%";
+             };
+        }
+        
+        function playStream(audioElement,path){
+            audioElement.src = path;
+            audioElement.play();
+            audioElement.volume = 0.2;
+            document.querySelector('#status').innerHTML = "Now playing: " + path;
+        }
+        
+        function update() { 
+            // this schedules a call to the update() method in 1/60 seconds
+            requestAnimationFrame(update);
             
-            for(var i=0; i<waveform_data.length; i++) 
-                waveform_data[i] *= 3;
+            /*
+                Nyquist Theorem
+                http://whatis.techtarget.com/definition/Nyquist-Theorem
+                The array of data we get back is 1/2 the size of the sample rate 
+            */
+            
+            // create a new array of 8-bit integers (0-255)
+            data = new Uint8Array(NUM_SAMPLES/2); 
+            waveformData = new Uint8Array(NUM_SAMPLES/2); 
+            
+            
+            // populate the array with the frequency data
+            // notice these arrays can be passed "by reference" 
+            analyserNode.getByteFrequencyData(data);
+        
+            // OR
+            analyserNode.getByteTimeDomainData(waveformData); // waveform data
+            
+            for(var i=0; i<waveformData.length; i++) 
+                waveformData[i] *= 3;
             
             maxRadius = document.querySelector("#maxRadius").value;
             desat = document.querySelector("#desat").value/100;
-			
-			// DRAW!
-			ctx.clearRect(0,0,800,600);  
-			var barWidth = 4;
-			var barSpacing = 1;
-			var barHeight = 100;
-			var topSpacing = 50;
             
-            var grad = ctx.createLinearGradient(0, 0, canvas.width, 0);
-            grad.addColorStop(0, "pink");
-            grad.addColorStop(1/3, "red");
-            grad.addColorStop(2/3, "purple");
-            grad.addColorStop(1, "blue");
+            // DRAW!
+            ctx.clearRect(0,0,canvas.width,canvas.height);  
             
-            var curr_sum = 0;
-            var curr_wavesum = 0;
-            
-            for(var i=0; i<data.length; i++) { 
-                curr_sum += data[i];
-                curr_wavesum += waveform_data[i];
-            }
-			
-            if(curr_sum - sum > 400){
-                ctx.fillStyle = "white";
-                if(curr_sum - sum > 900) ctx.fillStyle = "red";
-                ctx.fillRect(0, 0, 800, 600);
-                flash = true;
-            }
-            else flash = false;
-            sum = curr_sum;
-            
-			// loop through the data and draw!
-			for(var i=0; i<data.length; i++) { 
-				ctx.fillStyle = 'rgba(0,255,0,0.6)'; 
-                
-                //if(Math.abs(data[i] - data[(i+1)%data.length])>15 ) ctx.fillStyle = "rgba(255, 0, 0, 0.6)";
-                
-                if(Math.abs(waveform_data[i] - waveform_data[(i+1)%data.length])>9 ) ctx.fillStyle = "rgba(114, 255, 136, 0.92)";
 
-    
-				
-				// the higher the amplitude of the sample (bin) the taller the bar
-				// remember we have to draw our bars left-to-right and top-down
-				//ctx.fillRect(i * (barWidth + barSpacing),topSpacing + 256-data[i],barWidth,barHeight); 
-
-                //Draw ellipses (this shouldn't work in Firefox, but we're only concerned about Chrome)
-                ctx.beginPath();
-                ctx.ellipse(i*(barWidth + barSpacing)+barWidth/2, topSpacing + 256 - data[i] + barHeight/2, barWidth, barHeight, 0, 0, Math.PI*2, false);
-                ctx.fill();
-
-                
-                //draw inverted bars
-                //ctx.fillRect(640 - i*(barWidth+barSpacing), topSpacing + 256 - data[i] - 20, barWidth, barHeight);
-                ctx.beginPath();
-                ctx.ellipse(640 - i*(barWidth + barSpacing)+barWidth/2, topSpacing + 256 - data[i] + barHeight/2-20, barWidth, barHeight, 0, 0, Math.PI*2, false);
-                ctx.fill();
-                
-                
-                //red-ish circles
-                var percent = data[i]/255;
-                var circleRadius = percent*maxRadius;
-                ctx.beginPath();
-                ctx.fillStyle = makeColor(255, 111, 111, .34 - percent/3.0);
-                ctx.arc(canvas.width/2, canvas.height/2, circleRadius, 0, 2*Math.PI, false);
-                ctx.fill();
-                ctx.closePath();
-                
-                //blue-ish circles, bigger, more transparent
-                ctx.beginPath();
-                ctx.fillStyle = makeColor(0, 0, 255, .10 - percent/10.0);
-                ctx.arc(canvas.width/2, canvas.height/2, circleRadius*1.5, 0, 2*Math.PI, false);
-                ctx.fill();
-                ctx.closePath();
-                
-                //yellow-ish circles, smaller
-                ctx.save();
-                ctx.beginPath();
-                ctx.fillStyle = makeColor(200, 200, 0, .5 - percent/5.0);
-                ctx.arc(canvas.width/2, canvas.height/2, circleRadius*.5, 0, 2*Math.PI, false);
-                ctx.fill();
-                ctx.closePath();
-                ctx.restore();
-                
-				
-			}
-            
             ctx.save();
-            ctx.strokeStyle = grad;
+            
+            // create a number of 19 bars
+            for (var i = 0; i < 20; i++)
+                {
+            // left to right, big to small
+            drawRectangles('#180528', 5 + (i*32), 16, 200 - (i*20));
+            // right to left, big to small
+            drawRectangles('#180528', 1230 - (i*32), 16, 200 - (i*20));
+                }
+            ctx.restore();
+          
+            // same here, but in lighter color
+            for (var i = 0; i < 20; i++)
+                {
+            drawRectangles('#290745', 5 + (i*32), 16, 150 - (i*20));
+            drawRectangles('#290745', 1230 - (i*32), 16, 150 - (i*20));
+                }
+            
+             for (var i = 0; i < 20; i++)
+                {
+            drawRectangles('rgba(240, 127, 255, 0.67)', 5 + (i*32), 16, 30 - (i*20));
+            drawRectangles('rgba(240, 127, 255, 0.67)', 1230 - (i*32), 16, 30 - (i*20));
+                }
+            ctx.restore();
+            
+
+            // drawing bezier curves
+            // color, scaling, where to move it
+            drawCurves('rgba(114, 38, 38, 0.30)', 0.8, canvas.width/2, canvas.height/2);
+            drawCurves('rgba(114, 38, 38, 0.50)', 1, canvas.width/2, canvas.height/2);
+            drawCurves('rgba(114, 38, 38, 0.30)', 1.1, canvas.width/2, canvas.height/2);
+            drawCurves('rgba(114, 38, 38, 0.10)', 1.15, canvas.width/2, canvas.height/2);
+            
+            drawCurves('rgba(66, 35, 96, 0.30)', 1.17, canvas.width/2, canvas.height/2);
+            drawCurves('rgba(66, 35, 96, 0.05)', 1.18, canvas.width/2, canvas.height/2);
+            drawCurves('rgba(66, 35, 96, 0.02)', 1.20, canvas.width/2, canvas.height/2);
+            
+            
+            drawEqualizer();
+            
+            drawWaveform();
+        
+            
+            
+//            manipulatePixels();
+             
+        } 
+        
+        // HELPER
+        function makeColor(red, green, blue, alpha){
+            var color='rgba('+red+','+green+','+blue+', '+alpha+')';
+            return color;
+        }
+        
+         // FULL SCREEN MODE
+        function requestFullscreen(element) {
+            if (element.requestFullscreen) {
+              element.requestFullscreen();
+            } else if (element.mozRequestFullscreen) {
+              element.mozRequestFullscreen();
+            } else if (element.mozRequestFullScreen) { // camel-cased 'S' was changed to 's' in spec
+              element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullscreen) {
+              element.webkitRequestFullscreen();
+            }
+            // .. and do nothing if the method is not supported
+        };
+        
+        function drawEqualizer(){
+            var barWidth = 4;
+            var innerRadius = 35;
+            ctx.save();
+            ctx.translate(canvas.width/2, canvas.height/2);
+            ctx.rotate(equalizerRotation);
+            equalizerRotation += rotationIncrement;
+            ctx.fillStyle = 'rgba(240, 127, 255, 0.67)'; 
+
+            // loop through the data and draw!
+            for(var i=0; i<data.length; i++) { 
+                ctx.rotate(Math.PI*2/data.length);
+                ctx.fillRect(innerRadius, 0, 60 + data[i], barWidth);
+            }
+            ctx.restore();
+        }
+        
+        function drawWaveform(){
+            ctx.save();
+            ctx.strokeStyle = waveGrad;
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(0, canvas.height/2);
-            for(var i=0; i<waveform_data.length; i++){
-                ctx.lineTo(i*canvas.width/waveform_data.length, 100+ waveform_data[i]);
+            for(var i=0; i<waveformData.length; i++){
+                ctx.lineTo(i*canvas.width/waveformData.length, 200+ waveformData[i]);
             }
-            console.log(waveform_data);
-            debugger;
             ctx.stroke();
             ctx.restore();
-            manipulatePixels();
-			 
-		} 
-		
-		// HELPER
-		function makeColor(red, green, blue, alpha){
-   			var color='rgba('+red+','+green+','+blue+', '+alpha+')';
-   			return color;
-		}
-		
-		 // FULL SCREEN MODE
-		function requestFullscreen(element) {
-			if (element.requestFullscreen) {
-			  element.requestFullscreen();
-			} else if (element.mozRequestFullscreen) {
-			  element.mozRequestFullscreen();
-			} else if (element.mozRequestFullScreen) { // camel-cased 'S' was changed to 's' in spec
-			  element.mozRequestFullScreen();
-			} else if (element.webkitRequestFullscreen) {
-			  element.webkitRequestFullscreen();
-			}
-			// .. and do nothing if the method is not supported
-		};
+        }
+        
+        
+        // using bezier curve to create the flower shape
+        function drawCurves(color, scale, transX, transY) {
+           
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.beginPath();
+            ctx.translate(transX, transY);
+            ctx.scale(scale, scale);
+            for (var j = 0; j < 5; j++)
+                {
+                    // each pedal is rotated 90 degrees
+                    ctx.rotate(90*Math.PI/180);
+                    // drawing it at the origin, easy to transfer
+                    ctx.moveTo(0, 0);
+                    
+                    // loop through data and change the line width and alpha
+                    for(var i=0; i <data.length; i++) {
+                    ctx.lineWidth = 3 * data[i];
+                    ctx.globalAlpha = 0.1 + data[i];       
+                    }
+
+                    ctx.bezierCurveTo(-425, - (canvas.height/2), 425, - (canvas.height /2 ), 0, 0);      
+                    ctx.stroke();
+                }
+            
+            ctx.restore();
+            ctx.save();
+            ctx.globalAlpha =1;
+            
+            // draw black circle in center, to cover the origin
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(canvas.width/2,canvas.height/2,35,0,2*Math.PI);
+            ctx.fill();
+            ctx.restore();
+        }
+        
+        
+        // draws the rectangles and move them to the waveform data
+        
+        function drawRectangles(color, originX, width, height, alp) {
+         ctx.save();
+         ctx.fillStyle = color;
+         ctx.globalAlpha = 0.2;
+        for(var i=0; i < waveformData.length; i++)
+        {   
+              ctx.fillRect(originX, canvas.height, width, - height - waveformData[i]);
+        }
+                  
+         ctx.restore();
+    }
         
         function manipulatePixels(){
             //i) Get all of the rgba pixel data of the canvas by grabbing the ImageData Object
@@ -305,13 +339,6 @@
             //data[i+1] is the green value
             //data[i+2] is the blue value
             //data[i+3] is the alpha value
-            
-            //iv) increase red value only
-            if(tintRed){  
-                for(var i=0; i<length; i+=4){
-                    data[i] = data[i]+100; //just the red channel this time
-                }
-            }
             
             //v) Invert every color channel
             if(invert){
@@ -336,20 +363,6 @@
                 }
             }
             
-            //vii) Draw 2-pixel lines every 50 rows
-            if(lines){
-                for(var i=0; i<length; i+=4){
-                    var row = Math.floor(i/4/width);
-                    if(row%50==0){
-                        //this row
-                        data[i] = data[i+1] = data[i+2] = data[i+3] = 255;
-                        
-                        //next row
-                        data[i+(width*4)] = data[i+(width*4)+1] = data[i+(width*4)+2] = data[i+(width*4)+3] = 255;
-                    }
-                }
-            }
-            
             if(desat != 0){
                 for(var i=0; i<length; i+=4){
                     var avg = (data[i]+data[i+1]+data[i+2])/3;
@@ -365,42 +378,37 @@
             //put the modified data back on the canvas
             ctx.putImageData(imageData, 0, 0);
         }
-		
-		
-		window.addEventListener("load",init);
-	}());
-		
-	</script>
+        
+        
+        window.addEventListener("load",init);
+    }());
+        
+    </script>
 </head>
 <body>
-	<canvas id="canvas" width="640" height="400"></canvas>
+    <canvas id="canvas" width="1250" height="700"></canvas>
     
- 
-    
-	<div id="controls">
+    <div id="controls">
        <div>
            <label for="maxRadius">Max radius</label>
            <input id="maxRadius" type ="range" min ="50" max="400" step ="10" value ="200"/>
            <span  id="sliderResults">200</span>
-	   </div>
+       </div>
         
-		<audio controls loop></audio>
-		<label>Track: 
-			<select id="trackSelect" >
-				<option value="media/New Adventure Theme.mp3">New Adventure Theme</option>
-				<option value="media/Peanuts Theme.mp3">Peanuts Theme</option>
-				<option value="media/The Picard Song.mp3">The Picard Song</option>
-			</select>
-		</label>
-		<button id="fsButton">Go Full Screen</button><br>
-		<p id="status">???</p>
+        <audio controls loop></audio>
+        <p>
+            <label>Track: 
+            <select id="trackSelect" >
+                <option value="media/Celldweller - Frozen (Celldweller vs Blue Stahli).mp3">Celldweller - Frozen (Celldweller vs Blue Stahli)</option>
+                <option value="media/Peanuts Theme.mp3">Peanuts Theme</option>
+                <option value="media/The Picard Song.mp3">The Picard Song</option>
+            </select>
+          </label>
+        </p>
+        <button id="fsButton">Go Full Screen</button><br>
+        <p id="status">???</p>
         
         <div class="checkboxes">
-            <span>
-              <input type="checkbox" id="red">
-              <label for="red">Tint red</label>
-            </span>
-            
             <span>
               <input type="checkbox" id="invert">
               <label for="invert">Invert</label>
@@ -410,20 +418,13 @@
               <input type="checkbox" id="noise">
               <label for="noise">Noise</label>
             </span>
-            
-            <span>
-              <input type="checkbox" id="lines">
-              <label for="lines">Lines</label>
-            </span>
         </div>
         
         <div>
            <label for="desat">Desaturation</label>
            <input id="desat" type ="range" min ="0" max="100" step ="5" value ="0"/>
            <span  id="desatResults">0%</span>
-	   </div>
-
-
-	</div>
+       </div>
+    </div>
 </body>
 </html>
