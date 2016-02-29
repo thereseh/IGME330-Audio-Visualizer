@@ -12,33 +12,80 @@
     div{
         margin-bottom: 5%;
     }
-
-      canvas {
+        #topCanvas {
+        -webkit-filter: blur(7px);
         margin-left:10px;
         margin-top:10px;
-        box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
-        background: black;
+		z-index: 1;
+	  }
+        
+      #canvas {
+        position: absolute;
+        margin-left:10px;
+        margin-top:10px;
+          z-index: 0;
+          background: black
         }
         
         @font-face { 
 	    font-family: 'HeaderFont';
-            src: url('fonts/MAXRHODES.ttf') format('truetype');
+            src: url('fonts/Stalemate-Regular.ttf') format('truetype');
              font-weight: bold;
 	
             }
         
+        input[type='range'] {
+        -webkit-appearance: none;
+        appearance: none;
+        -moz-appearance: none;
+        border-radius: 20px;
+        box-shadow: inset 1px 1px 1px rgba(000,000,000,0.25);
+        background-color: #FFF;
+        height: 5px;
+        vertical-align: middle;
+        width: 200px;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+        -webkit-appearance: none;
+        appearance: none;
+        border-radius: 20px;
+        box-shadow: inset 1px 1px 1px rgba(000,000,000,0.25);
+        background-color: #FFF;
+        height: 5px;
+        vertical-align:middle;
+        border:solid 1px rgba(0,0,0,0.25);
+    }
+    input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        transform: rotate(90deg);
+        border-radius: 10px;
+        background-color: #F0E68C;
+        box-shadow:inset 0px 1px 0px rgba(000,000,000,0.5);
+        border: 1px solid #999;
+        height: 20px;
+        width: 20px;
+        vertical-align:middle;
+        margin-top: -9px;
+    }
+
+        
      h1 { 
          
-        font: 50px 'HeaderFont', Arial, Helvetica, Geneva, sans-serif;
+        font: 60px 'HeaderFont', Arial, Helvetica, Geneva, sans-serif;
          color: #F0E68C;
-        margin-left:10px;
+        margin-left:40px;
         margin-top:10px;
         }
         
+        p {
+            font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
+        }
+        
      label {
-             margin-top:10px;
+            margin-top:10px;
             margin-bottom:20px;
         }
+        
 
 /*      #controls{
         position:absolute;
@@ -51,18 +98,27 @@
       #controls, canvas{
         float: left;
       }
+        
+        audio {
+            background: rgba(90, 90, 90, 1.0);
+             margin-left:80px;
+
+        }
 
       #controls{
         margin-left: 2.5%;
         background-color: rgba(90, 90, 90, 1.0);
+        font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
+          font-weight: 700;
         padding: 1%;
           margin-top: 10px;
-        border-radius: 20px;
+        border-radius: 0px;
       }
         
         .checkboxes span{
-            margin-right: 17px;
+            margin-right: 20px;
         }
+       
     </style>
     <script>
     // An IIFE ("Iffy") - see the notes in mycourses
@@ -76,7 +132,7 @@
 
         var audioElement;
         var analyserNode;
-        var canvas,ctx;
+        var canvas,topCanvas,ctx,topCtx;
         var maxRadius = 200;
 //        var invert = false, tint = false, tintColor = "red";
         var invert = false, tint = false, tintColor = 'red';
@@ -88,8 +144,10 @@
         
         function init(){
             // set up canvas stuff
-            canvas = document.querySelector('canvas');
+            canvas = document.querySelector('#canvas');
             ctx = canvas.getContext("2d");
+            topCanvas = document.querySelector('#topCanvas');
+		    topCtx = topCanvas.getContext('2d');
             
             waveGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
             waveGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
@@ -240,8 +298,8 @@
             desat = document.querySelector("#desat").value/100;
             
             // DRAW!
-            ctx.clearRect(0,0,canvas.width,canvas.height);  
-            
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            topCtx.clearRect(0,0,canvas.width,canvas.height);  
             
 
             // drawing bezier curves
@@ -249,10 +307,10 @@
             
             drawCurve();
             drawRectangle();
-            drawEqualizer();
+           
             
             drawWaveform();
-        
+            drawEqualizer();
             
             
             manipulatePixels();
@@ -282,19 +340,19 @@
         function drawEqualizer(){
             var barWidth = 4;
             //var innerRadius = 35;
-            ctx.save();
-            ctx.translate(canvas.width/2, canvas.height/2);
-            ctx.rotate(equalizerRotation);
+            topCtx.save();
+            topCtx.translate(canvas.width/2, canvas.height/2);
+            topCtx.rotate(equalizerRotation);
             equalizerRotation += rotationIncrement;
-            ctx.fillStyle = 'rgba(240, 127, 255, 0.67)'; 
+            topCtx.fillStyle = 'rgba(240, 127, 255, 0.9)'; 
 
             // loop through the data and draw!
             for(var i=0; i<data.length; i++) {
 
-                ctx.rotate(Math.PI*2/data.length);
-                ctx.fillRect(innerRadius, 0, 60 + data[i], barWidth);
+                topCtx.rotate(Math.PI*2/data.length);
+                topCtx.fillRect(innerRadius, 0, 60 + data[i], barWidth);
             }
-            ctx.restore();
+            topCtx.restore();
         }
         
         function drawWaveform(){
@@ -352,7 +410,7 @@
             ctx.globalAlpha =1;
             
             // draw black circle in center, to cover the origin
-            ctx.fillStyle = "rgba(0, 0, 0, 0)";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
             ctx.beginPath();
             ctx.arc(canvas.width/2,canvas.height/2,innerRadius,0,2*Math.PI);
             ctx.fill();
@@ -407,6 +465,7 @@
         
         function manipulatePixels(){
             //i) Get all of the rgba pixel data of the canvas by grabbing the ImageData Object
+        
             // https://developer.mozilla.org/en-US/docs/Web/API/ImageData
             var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             
@@ -483,12 +542,10 @@
     
     
     <canvas id="canvas" width="1250" height="700" align="left"></canvas>
+    <canvas id="topCanvas" width="1250" height="700" align="left"></canvas>
     
     <div id="controls">
-          <h1>SwedZilla Production</h1>
-
-        
-        <audio controls></audio>
+          <h1>SwedZilla Audio Visualizer</h1>
 
         <p>
             <label>Track: 
@@ -499,6 +556,7 @@
             </select>
           </label>
         </p>
+        
 
         <button id="fsButton">Go Full Screen</button><br>
         <p id="status">???</p>
@@ -511,7 +569,7 @@
         
         <div class="checkboxes">
             <span>
-              <input type="checkbox" id="invert">
+              <input type="checkbox" value="1" id="invert">
               <label for="invert">Invert</label>
             </span>
             
@@ -531,6 +589,8 @@
            <input id="desat" type ="range" min ="0" max="100" step ="5" value ="0"/>
            <span  id="desatResults">0%</span>
        </div>
+        <audio controls></audio>
+
     </div>
 </body>
 </html>
