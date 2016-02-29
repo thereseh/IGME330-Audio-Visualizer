@@ -5,40 +5,142 @@
     <title>Web Audio Visualizer</title>
     <style>
     body {
-         background: #383838 ;
+         background: #202020;
          font-family: tahoma, verdana, sans serif;
       }
 
     div{
         margin-bottom: 5%;
     }
-
-      canvas {
-        margin-left:10px;
+        /* Equalizer is drawn here so we can blur */
+        #topCanvas {
+        -webkit-filter: blur(7px);
         margin-top:10px;
-        box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+		z-index: 1;
+	  }
+        
+      #canvas {
+        position: absolute;
+        margin-top:10px;
+          z-index: 0;
         background: black;
+          border: 5px solid #5f8574;
         }
         
         @font-face { 
 	    font-family: 'HeaderFont';
-            src: url('fonts/MAXRHODES.ttf') format('truetype');
+            src: url('fonts/Stalemate-Regular.ttf') format('truetype');
              font-weight: bold;
 	
             }
         
+        /* Stylised sliders using -webkit- plugin */
+     input[type=range] {
+          -webkit-appearance: none;
+          width: 100%;
+          margin: 6.9px 0;
+        }
+        
+        input[type=range]:focus {
+          outline: none;
+        }
+        
+        
+        input[type=range]::-webkit-slider-runnable-track {
+          width: 100%;
+          height: 6.2px;
+          cursor: pointer;
+          box-shadow: 0.6px 0.6px 0.9px #2b3371, 0px 0px 0.6px #323b83;
+          background: #ffffd7;
+          border-radius: 25px;
+          border: 0px solid rgba(211, 64, 161, 0.35);
+        }
+        input[type=range]::-webkit-slider-thumb {
+          box-shadow: 0.6px 0.6px 1.2px #000000, 0px 0px 0.6px #0d0d0d;
+          border: 0.4px solid #ffffff;
+            
+            /* Equal height and width creates a circle */
+          height: 20px;
+          width: 20px;
+          border-radius: 50px;
+          background: #5f8574;
+          cursor: pointer;
+          -webkit-appearance: none;
+          margin-top: -6.9px;
+        }
+        input[type=range]:focus::-webkit-slider-runnable-track {
+          background: #ffffff;
+        }
+    
+        /* Stylised checkboxes using gradient */
+        .checkboxes label {
+            display: inline-block;
+            cursor: pointer;
+            position: relative;
+            padding-left: 25px;
+            margin-left: 15px;
+            font-size: 13px;
+        }
+        
+        input[type=checkbox] {
+            display: none;
+        }
+        
+        .checkboxes label:before {
+            border-radius: 3px;
+            content: "";
+            display: inline-block;
+
+            width: 16px;
+            height: 16px;
+
+            margin-right: 10px;
+            position: absolute;
+            left: 0;
+            bottom: 1px;
+            background-color: #5f8574;
+            box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
+        }
+        input[type=checkbox]:checked + label:before {
+            background-color: #5f8574;
+            content: "\2713";
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
+            font-size: 15px;
+            color: #f3f3f3;
+            text-align: right;
+            line-height: 15px;
+        }
+
+        
      h1 { 
          
-        font: 50px 'HeaderFont', Arial, Helvetica, Geneva, sans-serif;
+        font: 60px 'HeaderFont', Arial, Helvetica, Geneva, sans-serif;
          color: #F0E68C;
-        margin-left:10px;
+        margin-left:40px;
         margin-top:10px;
         }
         
+        p {
+            font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
+        }
+        
+        #status {
+            font-weight: 700;
+        }
+        
      label {
-             margin-top:10px;
+            margin-top:10px;
             margin-bottom:20px;
         }
+        
+        select {
+            font: 13px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
+            color: #5f8574;
+            border-radius: 5px;
+            margin-left:10px;
+        }
+        
+        
 
 /*      #controls{
         position:absolute;
@@ -48,21 +150,29 @@
         margin-top:20px;
         margin-bottom:20px;
       }*/
-      #controls, canvas{
+      #controls, canvas {
         float: left;
       }
-
-      #controls{
-        margin-left: 2.5%;
-        background-color: rgba(90, 90, 90, 1.0);
-        padding: 1%;
-          margin-top: 10px;
-        border-radius: 20px;
-      }
         
-        .checkboxes span{
-            margin-right: 17px;
+        audio {
+            background: rgba(90, 90, 90, 1.0);
+             margin-left:80px;
+
         }
+
+      #controls {
+        margin-left: 0%;
+        width: 500px;
+        background-color: #595959;
+        box-shadow: inset 0px 0px 10px rgba(0,0,0,0.9);
+        border: 5px solid #5f8574;
+        font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
+        padding: 1%;
+        margin-top: 10px;
+        border-radius: 0px;
+      }
+    
+       
     </style>
     <script>
     // An IIFE ("Iffy") - see the notes in mycourses
@@ -76,7 +186,7 @@
 
         var audioElement;
         var analyserNode;
-        var canvas,ctx;
+        var canvas,topCanvas,ctx,topCtx;
         var maxRadius = 200;
 //        var invert = false, tint = false, tintColor = "red";
         var invert = false, tint = false, tintColor = 'red';
@@ -88,8 +198,10 @@
         
         function init(){
             // set up canvas stuff
-            canvas = document.querySelector('canvas');
+            canvas = document.querySelector('#canvas');
             ctx = canvas.getContext("2d");
+            topCanvas = document.querySelector('#topCanvas');
+		    topCtx = topCanvas.getContext('2d');
             
             waveGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
             waveGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
@@ -240,8 +352,8 @@
             desat = document.querySelector("#desat").value/100;
             
             // DRAW!
-            ctx.clearRect(0,0,canvas.width,canvas.height);  
-            
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            topCtx.clearRect(0,0,canvas.width,canvas.height);  
             
 
             // drawing bezier curves
@@ -249,10 +361,10 @@
             
             drawCurve();
             drawRectangle();
-            drawEqualizer();
+           
             
             drawWaveform();
-        
+            drawEqualizer();
             
             
             manipulatePixels();
@@ -282,19 +394,19 @@
         function drawEqualizer(){
             var barWidth = 4;
             //var innerRadius = 35;
-            ctx.save();
-            ctx.translate(canvas.width/2, canvas.height/2);
-            ctx.rotate(equalizerRotation);
+            topCtx.save();
+            topCtx.translate(canvas.width/2, canvas.height/2);
+            topCtx.rotate(equalizerRotation);
             equalizerRotation += rotationIncrement;
-            ctx.fillStyle = 'rgba(240, 127, 255, 0.67)'; 
+            topCtx.fillStyle = 'rgba(240, 127, 255, 0.9)'; 
 
             // loop through the data and draw!
             for(var i=0; i<data.length; i++) {
 
-                ctx.rotate(Math.PI*2/data.length);
-                ctx.fillRect(innerRadius, 0, 60 + data[i], barWidth);
+                topCtx.rotate(Math.PI*2/data.length);
+                topCtx.fillRect(innerRadius, 0, 60 + data[i], barWidth);
             }
-            ctx.restore();
+            topCtx.restore();
         }
         
         function drawWaveform(){
@@ -352,7 +464,7 @@
             ctx.globalAlpha =1;
             
             // draw black circle in center, to cover the origin
-            ctx.fillStyle = "rgba(0, 0, 0, 0)";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
             ctx.beginPath();
             ctx.arc(canvas.width/2,canvas.height/2,innerRadius,0,2*Math.PI);
             ctx.fill();
@@ -407,6 +519,7 @@
         
         function manipulatePixels(){
             //i) Get all of the rgba pixel data of the canvas by grabbing the ImageData Object
+        
             // https://developer.mozilla.org/en-US/docs/Web/API/ImageData
             var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             
@@ -483,13 +596,12 @@
     
     
     <canvas id="canvas" width="1250" height="700" align="left"></canvas>
+    <canvas id="topCanvas" width="1250" height="700" align="left"></canvas>
     
     <div id="controls">
-          <h1>SwedZilla Production</h1>
-
+          <h1>SwedZilla Audio Visualizer</h1>
         
-        <audio controls></audio>
-
+        <p id="status">???</p>
         <p>
             <label>Track: 
             <select id="trackSelect" >
@@ -499,19 +611,13 @@
             </select>
           </label>
         </p>
-
-        <button id="fsButton">Go Full Screen</button><br>
-        <p id="status">???</p>
+        
         
        <div>
-           <label for="maxRadius">Equalizer radius</label>
-           <input id="maxRadius" type ="range" min ="25" max="100" step ="5" value ="35"/>
-           <span  id="sliderResults">35</span>
-       </div>
         
         <div class="checkboxes">
             <span>
-              <input type="checkbox" id="invert">
+              <input type="checkbox" value="1" id="invert">
               <label for="invert">Invert</label>
             </span>
             
@@ -525,12 +631,20 @@
               </select>
             </span>
         </div>
+           
+            <label for="maxRadius">Equalizer radius</label>
+           <input id="maxRadius" type ="range" min ="25" max="100" step ="5" value ="35"/>
+           <span  id="sliderResults">35</span>
+       </div>
         
         <div>
            <label for="desat">Desaturation</label>
            <input id="desat" type ="range" min ="0" max="100" step ="5" value ="0"/>
            <span  id="desatResults">0%</span>
        </div>
+        <button id="fsButton">Go Full Screen</button><br>
+        <audio controls></audio>
+
     </div>
 </body>
 </html>
