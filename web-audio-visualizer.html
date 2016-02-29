@@ -9,6 +9,11 @@
          font-family: tahoma, verdana, sans serif;
       }
 
+      video{
+        /*display: none;*/
+        visibility: hidden
+      }
+
     div{
         margin-bottom: 5%;
     }
@@ -76,7 +81,7 @@
 
         var audioElement;
         var analyserNode;
-        var canvas,ctx;
+        var canvas,ctx, cameraCanvas, videoElement, cameraCtx;
         var maxRadius = 200;
 //        var invert = false, tint = false, tintColor = "red";
         var invert = false, tint = false, tintColor = 'red';
@@ -84,12 +89,38 @@
         var equalizerRotation = 0, rotationIncrement = 2*Math.PI/400;
         var waveGrad, data, waveformData, currentSong, alpha = 1;
         var innerRadius = 35;
+        var currVideo, oldVideo;
 
         
         function init(){
             // set up canvas stuff
             canvas = document.querySelector('canvas');
             ctx = canvas.getContext("2d");
+            videoElement = document.querySelector("video");
+            cameraCanvas = document.createElement("canvas");
+            cameraCanvas.width = videoElement.clientWidth;
+            cameraCanvas.height = videoElement.clientHeight;
+            cameraCtx = cameraCanvas.getContext("2d");
+
+            if(navigator.webkitGetUserMedia!=null) { 
+                var options = { 
+                    video:true, 
+                    audio:false 
+                    }; 
+                 
+                //request webcam access 
+                navigator.webkitGetUserMedia(options, 
+                    function(stream) { 
+                        //turn the stream into a magic URL 
+                        videoElement.src = window.webkitURL.createObjectURL(stream); 
+                    },
+                    function(e) { 
+                        console.log("error happened"); 
+                        alert("You have navigator.webkitGetUserMedia, but an error occurred");
+                    
+                    } 
+                ); 
+            };
             
             waveGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
             waveGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
@@ -214,7 +245,7 @@
         function update() { 
             // this schedules a call to the update() method in 1/60 seconds
             requestAnimationFrame(update);
-            
+
             /*
                 Nyquist Theorem
                 http://whatis.techtarget.com/definition/Nyquist-Theorem
@@ -253,7 +284,7 @@
             
             drawWaveform();
         
-            
+            motionDetection();
             
             manipulatePixels();
              
@@ -472,6 +503,48 @@
             //put the modified data back on the canvas
             ctx.putImageData(imageData, 0, 0);
         }
+
+        function motionDetection(){
+            cameraCtx.drawImage(videoElement, 0, 0, cameraCanvas.width, cameraCanvas.height);
+            var currVideoData = cameraCtx.getImageData(0, 0, cameraCanvas.width, cameraCanvas.height);
+
+            currVideo = currVideoData.data;
+            var length = currVideo.length;
+            var width = currVideo.width;
+
+            if(oldVideo != null){
+                for( var y = 0 ; y < cameraCanvas.height; y++ ) {
+                for( var x = 0 ; x < cameraCanvas.width; x++ ) {
+                
+                    var indexOld = (y * cameraCanvas.width + x) * 4, oldr = oldVideo[indexOld], oldg = oldVideo[indexOld+1], oldb = oldVideo[indexOld+2], olda = oldVideo[indexOld+3];
+                    var indexNew = (y * cameraCanvas.width + x) * 4, r = currVideo[indexNew], g = currVideo[indexNew+1], b = currVideo[indexNew+2], a = currVideo[indexNew+3];
+                    if (oldr > r - 15 || oldg > g - 15 || oldb > b - 15) {
+                    /*
+                        data[indexNew] = 255;
+                        data[indexNew+1] = 255; 
+                        data[indexNew+2] = 255; 
+                        data[indexNew+3] = 255; 
+                        detected = true;
+                        */
+                    } else {
+                    
+                        currVideo[indexNew] = 255; 
+                        currVideo[indexNew+1] = 0; 
+                        currVideo[indexNew+2] = 0; 
+                        currVideo[indexNew+3] = 255;
+                        
+                    }
+                    
+                  } // end for x
+                 } // end for y
+            }
+
+            
+
+            oldVideo = currVideo;
+
+            ctx.putImageData(currVideoData, 0, 0);
+        }
         
         
         window.addEventListener("load",init);
@@ -481,6 +554,7 @@
 </head>
 <body>
     
+    <video width = "1250" height="700" autoplay></video>
     
     <canvas id="canvas" width="1250" height="700" align="left"></canvas>
     
