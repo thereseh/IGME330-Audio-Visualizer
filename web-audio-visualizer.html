@@ -5,7 +5,7 @@
     <title>Web Audio Visualizer</title>
     <style>
     body {
-         background: #eeeeee;
+         background: #383838 ;
          font-family: tahoma, verdana, sans serif;
       }
 
@@ -14,12 +14,35 @@
         margin-top:10px;
         box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
         background: black;
-    }
-      
-      #controls{
-        float: right;
+        }
+        
+        @font-face { 
+	    font-family: 'HeaderFont';
+            src: url('fonts/MAXRHODES.ttf') format('truetype');
+             font-weight: bold;
+	
+            }
+        
+     h1 { 
+         
+        font: 50px 'HeaderFont', Arial, Helvetica, Geneva, sans-serif;
+         color: #F0E68C;
         margin-left:10px;
         margin-top:10px;
+        }
+        
+     label {
+             margin-top:10px;
+            margin-bottom:20px;
+        }
+
+      #controls{
+        position:absolute;
+        top: 0px; 
+        left:1290px;
+        margin-left:10px;
+        margin-top:20px;
+        margin-bottom:20px;
       }
         
         .checkboxes span{
@@ -33,9 +56,8 @@
         
         var NUM_SAMPLES = 256;
         var SOUND_1 = 'media/Celldweller - Frozen (Celldweller vs Blue Stahli).mp3';
-        var SOUND_2 = 'media/Peanuts Theme.mp3';
-        var SOUND_3 = 'media/The Picard Song.mp3';
-        var SOUND_
+        var SOUND_2 = 'media/Evanescence - Lacrymosa.mp3';
+        var SOUND_3 = 'media/Celldweller - The Last Firstborn (Remixed by Klayton).mp3';
 
         var audioElement;
         var analyserNode;
@@ -44,7 +66,7 @@
         var invert = false, noise = false;
         var desat = 0.0;
         var equalizerRotation = 0, rotationIncrement = 2*Math.PI/400;
-        var waveGrad, data, waveformData, alpha = 1;
+        var waveGrad, data, waveformData, currentSong, alpha = 1;
         
         function init(){
             // set up canvas stuff
@@ -106,8 +128,11 @@
         }
         
         function setupUI(){
+            currentSong = SOUND_1;
+            
             document.querySelector("#trackSelect").onchange = function(e){
                 playStream(audioElement,e.target.value);
+                currentSong = e.target.value;
             };
             
             document.querySelector("#fsButton").onclick = function(){
@@ -129,7 +154,31 @@
             document.querySelector("#desat").onchange = function(e){
                  document.querySelector("#desatResults").innerHTML = e.target.value+"%";
              };
+            
+            audioElement.onended=function(){
+                
+                console.log("called playNext");
+                
+            if (currentSong == SOUND_1)
+                {
+                  currentSong = SOUND_2;
+                  playStream(audioElement,SOUND_2);
+                }
+            else if (currentSong == SOUND_2)
+                {
+                    currentSong = SOUND_3;
+                    playStream(audioElement,SOUND_3);
+                }
+            else if (currentSong == SOUND_3)
+                {
+                    currentSong = SOUND_1;
+                    playStream(audioElement, SOUND_1);
+                }
+            };
+ 
+            
         }
+        
         
         function playStream(audioElement,path){
             audioElement.src = path;
@@ -169,52 +218,20 @@
             // DRAW!
             ctx.clearRect(0,0,canvas.width,canvas.height);  
             
-            ctx.save();
-            
-            // create a number of 19 bars
-            for (var i = 0; i < 20; i++)
-                {
-            // left to right, big to small
-            drawRectangles('#180528', 5 + (i*32), 16, 200 - (i*20));
-            // right to left, big to small
-            drawRectangles('#180528', 1230 - (i*32), 16, 200 - (i*20));
-                }
-            ctx.restore();
-          
-            // same here, but in lighter color
-            for (var i = 0; i < 20; i++)
-                {
-            drawRectangles('#290745', 5 + (i*32), 16, 150 - (i*20));
-            drawRectangles('#290745', 1230 - (i*32), 16, 150 - (i*20));
-                }
-            
-             for (var i = 0; i < 20; i++)
-                {
-            drawRectangles('rgba(240, 127, 255, 0.67)', 5 + (i*32), 16, 30 - (i*20));
-            drawRectangles('rgba(240, 127, 255, 0.67)', 1230 - (i*32), 16, 30 - (i*20));
-                }
-            ctx.restore();
             
 
             // drawing bezier curves
             // color, scaling, where to move it
-            drawCurves('rgba(114, 38, 38, 0.30)', 0.8, canvas.width/2, canvas.height/2);
-            drawCurves('rgba(114, 38, 38, 0.50)', 1, canvas.width/2, canvas.height/2);
-            drawCurves('rgba(114, 38, 38, 0.30)', 1.1, canvas.width/2, canvas.height/2);
-            drawCurves('rgba(114, 38, 38, 0.10)', 1.15, canvas.width/2, canvas.height/2);
             
-            drawCurves('rgba(66, 35, 96, 0.30)', 1.17, canvas.width/2, canvas.height/2);
-            drawCurves('rgba(66, 35, 96, 0.05)', 1.18, canvas.width/2, canvas.height/2);
-            drawCurves('rgba(66, 35, 96, 0.02)', 1.20, canvas.width/2, canvas.height/2);
-            
-            
+            drawCurve();
+            drawRectangle();
             drawEqualizer();
             
             drawWaveform();
         
             
             
-//            manipulatePixels();
+            manipulatePixels();
              
         } 
         
@@ -248,7 +265,8 @@
             ctx.fillStyle = 'rgba(240, 127, 255, 0.67)'; 
 
             // loop through the data and draw!
-            for(var i=0; i<data.length; i++) { 
+            for(var i=0; i<data.length; i++) {
+
                 ctx.rotate(Math.PI*2/data.length);
                 ctx.fillRect(innerRadius, 0, 60 + data[i], barWidth);
             }
@@ -266,6 +284,18 @@
             }
             ctx.stroke();
             ctx.restore();
+        }
+        
+        function drawCurve()
+        {
+            drawCurves('rgba(114, 38, 38, 0.30)', 0.8, canvas.width/2, canvas.height/2);
+            drawCurves('rgba(114, 38, 38, 0.50)', 1, canvas.width/2, canvas.height/2);
+            drawCurves('rgba(114, 38, 38, 0.30)', 1.1, canvas.width/2, canvas.height/2);
+            drawCurves('rgba(114, 38, 38, 0.10)', 1.15, canvas.width/2, canvas.height/2);
+            
+            drawCurves('rgba(66, 35, 96, 0.30)', 1.17, canvas.width/2, canvas.height/2);
+            drawCurves('rgba(66, 35, 96, 0.05)', 1.18, canvas.width/2, canvas.height/2);
+            drawCurves('rgba(66, 35, 96, 0.02)', 1.20, canvas.width/2, canvas.height/2);
         }
         
         // using bezier curve to create the flower shape
@@ -307,6 +337,36 @@
         
         
         // draws the rectangles and move them to the waveform data
+        function drawRectangle() {
+             ctx.save();
+            
+            // create a number of 19 bars
+            for (var i = 0; i < 20; i++)
+                {
+                    
+            // left to right, big to small
+            drawRectangles('#180528', 5 + (i*32), 16, 200 - (i*20));
+            // right to left, big to small
+            drawRectangles('#180528', 1230 - (i*32), 16, 200 - (i*20));
+                }
+            ctx.restore();
+          
+            // same here, but in lighter color
+            for (var i = 0; i < 20; i++)
+                {
+            drawRectangles('#290745', 5 + (i*32), 16, 150 - (i*20));
+            drawRectangles('#290745', 1230 - (i*32), 16, 150 - (i*20));
+                }
+            
+            // same, with the lightest color
+             for (var i = 0; i < 20; i++)
+                {
+            drawRectangles('rgba(240, 127, 255, 0.67)', 5 + (i*32), 16, 30 - (i*20));
+            drawRectangles('rgba(240, 127, 255, 0.67)', 1230 - (i*32), 16, 30 - (i*20));
+                }
+            
+            ctx.restore();          
+        }
         
         function drawRectangles(color, originX, width, height, alp) {
          ctx.save();
@@ -319,6 +379,8 @@
                   
          ctx.restore();
     }
+
+        
         function manipulatePixels(){
             //i) Get all of the rgba pixel data of the canvas by grabbing the ImageData Object
             // https://developer.mozilla.org/en-US/docs/Web/API/ImageData
@@ -384,25 +446,30 @@
     </script>
 </head>
 <body>
-    <canvas id="canvas" width="1250" height="700"></canvas>
+    
+    
+    <canvas id="canvas" width="1250" height="700" align="left"></canvas>
     
     <div id="controls">
+          <h1>SwedZilla Production</h1>
        <div>
            <label for="maxRadius">Max radius</label>
            <input id="maxRadius" type ="range" min ="50" max="400" step ="10" value ="200"/>
            <span  id="sliderResults">200</span>
        </div>
         
-        <audio controls loop></audio>
+        <audio controls></audio>
+
         <p>
             <label>Track: 
             <select id="trackSelect" >
                 <option value="media/Celldweller - Frozen (Celldweller vs Blue Stahli).mp3">Celldweller - Frozen (Celldweller vs Blue Stahli)</option>
-                <option value="media/Peanuts Theme.mp3">Peanuts Theme</option>
-                <option value="media/The Picard Song.mp3">The Picard Song</option>
+                <option value="media/Evanescence - Lacrymosa.mp3">Evanescence - Lacrymosa.mp3</option>
+                <option value="media/Celldweller - The Last Firstborn (Remixed by Klayton).mp3">Celldweller - The Last Firstborn (Remixed by Klayton)</option>
             </select>
           </label>
         </p>
+
         <button id="fsButton">Go Full Screen</button><br>
         <p id="status">???</p>
         
