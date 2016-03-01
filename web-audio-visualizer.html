@@ -11,194 +11,192 @@
          font-family: tahoma, verdana, sans serif;
       }
 
-      video{
-/*        display: none;*/
-        visibility: hidden;
-      }
+        /*Can't use display: none or the video's size goes to 0 x 0*/
+  video{
+    visibility: hidden;
+  }
 
     div{
         margin-bottom: 5%;
     }
 
-        /* Equalizer and camera is drawn here so we can blur */
-        #topCanvas {
+    /* Equalizer and camera is drawn here so we can blur */
+    #topCanvas {
         -webkit-filter: blur(7px);
         margin-top:10px;
-		z-index: 1;
-	  }
-        
-        /* ---------- */
-        
-        /* This is the main canvas */
-      #canvas {
+        z-index: 1;
+    }
+
+    /* ---------- */
+
+    /* This is the main canvas */
+    #canvas {
         position: absolute;
         margin-top:10px;
         z-index: 0;
         background: black;
         border: 5px solid #5f8574;
-        }
-        
-        /* Stylised sliders using -webkit- plugin 
-        http://danielstern.ca/range.css/#/ 
-        This site allows you to create a stylised slider!
-        */
-        input[type=range] {
-          -webkit-appearance: none;
-          width: 100%;
-          margin: 6.9px 0;
-        }
-        
-        input[type=range]:focus {
-          outline: none;
-        }
-        
-        
-        input[type=range]::-webkit-slider-runnable-track {
-          width: 100%;
-          height: 6.2px;
-          cursor: pointer;
-          box-shadow: 0.6px 0.6px 0.9px #2b3371, 0px 0px 0.6px #323b83;
-          background: #ffffd7;
-          border-radius: 25px;
-          border: 0px solid rgba(211, 64, 161, 0.35);
-        }
-        input[type=range]::-webkit-slider-thumb {
-          box-shadow: 0.6px 0.6px 1.2px #000000, 0px 0px 0.6px #0d0d0d;
-          border: 0.4px solid #ffffff;
-            
-        /* Equal height and width creates a circle */
-          height: 20px;
-          width: 20px;
-          border-radius: 50px;
-          background: #5f8574;
-          cursor: pointer;
-          -webkit-appearance: none;
-          margin-top: -6.9px;
-        }
-        input[type=range]:focus::-webkit-slider-runnable-track {
-          background: #ffffff;
-        }
-        
-        /*----------------------------*/
-    
-        /* Stylised checkboxes using gradient
-        http://www.hongkiat.com/blog/css3-checkbox-radio/
-        this site gave us an idea of how to stylise checkboxes!
-        */
-        .checkboxes label {
-            display: inline-block;
-            cursor: pointer;
-            position: relative;
-            padding-left: 25px;
-            margin-left: 10px;
-            margin-bottom: -30px;
-            margin-top: 15px;
-            font-size: 13px;
-        }
-        
-        input[type=checkbox] {
-            display: none;
-        }
-        
-        .checkboxes label:before {
-            border-radius: 3px;
-            content: "";
-            display: inline-block;
+    }
 
-            width: 16px;
-            height: 16px;
+    /* Stylised sliders using -webkit- plugin 
+    http://danielstern.ca/range.css/#/ 
+    This site allows you to create a stylised slider!
+    */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      margin: 6.9px 0;
+    }
 
-            margin-right: 10px;
-            position: absolute;
-            left: 0;
-            bottom: 1px;
-            background-color: #5f8574;
-            box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
-        }
-        input[type=checkbox]:checked + label:before {
-            background-color: #5f8574;
-            content: "\2713";
-            text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
-            font-size: 15px;
-            color: #f3f3f3;
-            text-align: right;
-            line-height: 15px;
-        }
+    input[type=range]:focus {
+      outline: none;
+    }
         
-        #trackSelect {
-            width: 100%;
-        }
-        
-        #tintColor {
-            margin-left: 10px;
-        }
-        
-        
-        
-         /*----------------------------*/
-       
-        /* Using our webfont, taken from google fonts */
-         h1 {   
-            font-family: 'Stalemate', normal, Arial, Helvetica, Geneva, sans-serif;;
-            font-weight: 400;
-            font-size: 42px;
-            color: #F0E68C;
-            margin-top: 0px;
-            margin-left: 5px;
-            margin-bottom: 50px;
-        }
-        
-        p {
-            font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
-        }
-        
-         /* This is the text that displays the song that's playing,
-        it also have the same font as the "p" text, gave it it's one tag because
-        we wanted to have it in bold'*/
-        #status {
-            margin-top:-30px;
-            margin-bottom:20px;
-            font-weight: 700;
-        }
-        
-         /* Adding some space between labels*/
-        label {
-            margin-top:10px;
-            margin-bottom:20px;
-        }
-        
-        /* change the font in the drop down menus,
-        and to add some spacing, and rounding the corners*/
-        select {
-            margin-top: 5px;
-            color: #3f5a4e;
-            border-radius: 5px;
-        }
-        
-        
-      #controls, canvas, topCanvas {
-        float: left;
-      }
-        
-        /* General code for all
-        controls elements, such as pont*/
-      #controls {
-        width: 300px;
-        height: 562px;
-        font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
-        background-color: #595959;
-        box-shadow: inset 0px 0px 10px rgba(0,0,0,0.9);
-        border: 5px solid #5f8574;
-        padding: 1%;
-        margin-top: 10px;
+
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6.2px;
+      cursor: pointer;
+      box-shadow: 0.6px 0.6px 0.9px #2b3371, 0px 0px 0.6px #323b83;
+      background: #ffffd7;
+      border-radius: 25px;
+      border: 0px solid rgba(211, 64, 161, 0.35);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      box-shadow: 0.6px 0.6px 1.2px #000000, 0px 0px 0.6px #0d0d0d;
+      border: 0.4px solid #ffffff;
+
+    /* Equal height and width creates a circle */
+      height: 20px;
+      width: 20px;
+      border-radius: 50px;
+      background: #5f8574;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -6.9px;
+    }
+    input[type=range]:focus::-webkit-slider-runnable-track {
+      background: #ffffff;
+    }
+
+    /*----------------------------*/
+
+    /* Stylised checkboxes using gradient
+    http://www.hongkiat.com/blog/css3-checkbox-radio/
+    this site gave us an idea of how to stylise checkboxes!
+    */
+    .checkboxes label {
+        display: inline-block;
+        cursor: pointer;
+        position: relative;
+        padding-left: 25px;
+        margin-left: 10px;
+        margin-bottom: -30px;
+        margin-top: 15px;
+        font-size: 13px;
+    }
+
+    input[type=checkbox] {
+        display: none;
+    }
+
+    .checkboxes label:before {
+        border-radius: 3px;
+        content: "";
+        display: inline-block;
+
+        width: 16px;
+        height: 16px;
+
+        margin-right: 10px;
+        position: absolute;
+        left: 0;
+        bottom: 1px;
+        background-color: #5f8574;
+        box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
+    }
+    input[type=checkbox]:checked + label:before {
+        background-color: #5f8574;
+        content: "\2713";
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
+        font-size: 15px;
+        color: #f3f3f3;
+        text-align: right;
+        line-height: 15px;
+    }
+
+    #trackSelect {
+        width: 100%;
+    }
+
+    #tintColor {
+        margin-left: 10px;
+    }
+
+
+
+     /*----------------------------*/
+
+    /* Using our webfont, taken from google fonts */
+     h1 {   
+        font-family: 'Stalemate', normal, Arial, Helvetica, Geneva, sans-serif;;
+        font-weight: 400;
+        font-size: 42px;
+        color: #F0E68C;
+        margin-top: 0px;
         margin-left: 5px;
-      }
+        margin-bottom: 50px;
+    }
+
+    p {
+        font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
+    }
+
+     /* This is the text that displays the song that's playing,
+    it also have the same font as the "p" text, gave it it's one tag because
+    we wanted to have it in bold'*/
+    #status {
+        margin-top:-30px;
+        margin-bottom:20px;
+        font-weight: 700;
+    }
+
+     /* Adding some space between labels*/
+    label {
+        margin-top:10px;
+        margin-bottom:20px;
+    }
+
+    /* change the font in the drop down menus,
+    and to add some spacing, and rounding the corners*/
+    select {
+        margin-top: 5px;
+        color: #3f5a4e;
+        border-radius: 5px;
+    }
+
+
+  #controls, canvas, topCanvas {
+    float: left;
+  }
+
+    /* General code for all
+    controls elements, such as pont*/
+  #controls {
+    width: 300px;
+    height: 562px;
+    font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
+    background-color: #595959;
+    box-shadow: inset 0px 0px 10px rgba(0,0,0,0.9);
+    border: 5px solid #5f8574;
+    padding: 1%;
+    margin-top: 10px;
+    margin-left: 5px;
+  }
         
-         audio {
-            background: rgba(90, 90, 90, 1.0);
-/*            margin-bottom: -150px;*/
-             
-        }
+audio {
+    background: rgba(90, 90, 90, 1.0);
+}
     
     </style>
     <script>
@@ -215,7 +213,6 @@
         var analyserNode;
         var canvas,ctx, cameraCanvas, videoElement, cameraCtx;
         var maxRadius = 200;
-//        var invert = false, tint = false, tintColor = "red";
         var invert = false, tint = false, tintColor = 'red', detect = false, cameraControl = false;
         var desat = 0.0;
         var equalizerRotation = 0, rotationIncrement = 2*Math.PI/400;
@@ -238,6 +235,7 @@
             cameraCtx = cameraCanvas.getContext("2d");
             cameraCanvas.style.display = "none";
 
+            /*Request webcam. This code came from the motion detection example in myCourses.*/
             if(navigator.webkitGetUserMedia!=null) { 
                 var options = { 
                     video:true, 
@@ -257,9 +255,12 @@
                     } 
                 ); 
             };
+            
+            
             topCanvas = document.querySelector('#topCanvas');
 		    topCtx = topCanvas.getContext('2d');
             
+            /*Create gradient for the waveform line*/
             waveGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
             waveGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
             waveGrad.addColorStop(1/3, "white");
@@ -295,7 +296,7 @@
             // create an analyser node
             analyserNode = audioCtx.createAnalyser();
             
-            
+            /*Create bass boost filter. This came from https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API */
             bassBoost = audioCtx.createBiquadFilter();
             bassBoost.type = "lowshelf";
             bassBoost.frequency.value = 900;
@@ -344,6 +345,7 @@
                 detect = e.target.checked;
             };
             
+            /*Disables bass boost slider if camera controls are enabled*/
             document.getElementById('camera').onchange = function(e){
                 cameraControl = e.target.checked;
                 if(Boolean(cameraControl)) document.querySelector("#bass").disabled = true;
@@ -356,7 +358,6 @@
 
             document.getElementById("tintColor").onchange = function(e){
                 tintColor = e.target.value;
-                console.log(tintColor);
             };
             
             document.querySelector("#desat").onchange = function(e){
@@ -403,6 +404,8 @@
         function update() { 
             // this schedules a call to the update() method in 1/60 seconds
             requestAnimationFrame(update);
+            
+            /*Limit it to 30FPS*/
             frameCounter++;
             if(frameCounter >= 600) frameCounter = 0;
             if(frameCounter%2 == 0) return;
@@ -422,10 +425,9 @@
             // notice these arrays can be passed "by reference" 
             analyserNode.getByteFrequencyData(data);
         
-            // OR
             analyserNode.getByteTimeDomainData(waveformData); // waveform data
             
-            for(var i=0; i<waveformData.length; i++) 
+            for(var i=0; i<waveformData.length; i++) //Bump up any differences so it's less uniform in the visualizer
                 waveformData[i] *= 3;
             
             maxRadius = document.querySelector("#maxRadius").value;
@@ -471,9 +473,9 @@
             // .. and do nothing if the method is not supported
         };
         
+        /*Draws the circle equalizer*/
         function drawEqualizer(){
             var barWidth = 4;
-            //var innerRadius = 35;
             topCtx.save();
             topCtx.translate(canvas.width/2, canvas.height/2);
             topCtx.rotate(equalizerRotation);
@@ -489,6 +491,7 @@
             topCtx.restore();
         }
         
+        /*Draws the waveform line*/
         function drawWaveform(){
             ctx.save();
             ctx.strokeStyle = waveGrad;
@@ -605,8 +608,6 @@
             var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             
             //ii) imageData.data is an 8-bit array - values range from 0-255
-            //imageData.data contains 4 values per pixel: 4 x canvas.width x canvas.height = 1024000 values!
-            //we're looping through this 60 FPS - wow!
             var data = imageData.data;
             var length = data.length;
             var width = imageData.width;
@@ -629,15 +630,13 @@
                 }
             }
             
+            //Desaturation
             if(desat != 0){
                 for(var i=0; i<length; i+=4){
                     var avg = (data[i]+data[i+1]+data[i+2])/3;
                     data[i] = desat*avg + (1-desat)*data[i];
                     data[i+1] = desat*avg + (1-desat)*data[i+1];
                     data[i+2] = desat*avg + (1-desat)*data[i+2];
-
-
-//                        data[i+1] = data[i+2] = avg;
                 }
             }
 
@@ -684,7 +683,9 @@
             ctx.putImageData(imageData, 0, 0);
         }
 
+        /*This came from the motion detection example on myCourses*/
         function motionDetection(){
+            
             cameraCtx.drawImage(videoElement, 0, 0, cameraCanvas.width, cameraCanvas.height);
             var currVideoData = cameraCtx.getImageData(0, 0, cameraCanvas.width, cameraCanvas.height);
             var imageData = topCtx.getImageData(0, 0, topCanvas.width, topCanvas.height);
@@ -694,7 +695,7 @@
             var length = currVideo.length;
             var width = currVideo.width;
             
-            var detectCount = 0;
+            var detectCount = 0; //How much movement has been detected
 
             if(oldVideo != null){
                 for( var y = 0 ; y < cameraCanvas.height; y++ ) {
@@ -703,49 +704,33 @@
                     var indexOld = (y * cameraCanvas.width + x) * 4, oldr = oldVideo[indexOld], oldg = oldVideo[indexOld+1], oldb = oldVideo[indexOld+2], olda = oldVideo[indexOld+3];
                     var indexNew = (y * cameraCanvas.width + x) * 4, r = currVideo[indexNew], g = currVideo[indexNew+1], b = currVideo[indexNew+2], a = currVideo[indexNew+3];
                     if (oldr > r - 15 || oldg > g - 15 || oldb > b - 15) {
-                    /*
-                        data[indexNew] = 255;
-                        data[indexNew+1] = 255; 
-                        data[indexNew+2] = 255; 
-                        data[indexNew+3] = 255; 
-                        detected = true;
-                        */
+ 
                     } else {
-                    
-//                        currVideo[indexNew] = 255; 
-//                        currVideo[indexNew+1] = 0; 
-//                        currVideo[indexNew+2] = 0; 
-//                        currVideo[indexNew+3] = 255;
-            //            rgba(247, 109, 183, 0.5)
                         data[indexNew] = 247; 
                         data[indexNew+1] = 109; 
                         data[indexNew+2] = 183; 
                         data[indexNew+3] = 0.4*255;
                         detectCount++;
-                        
                     }
-                    
                   } // end for x
                  } // end for y
             }
             
             
-            if(cameraControl) {
-                //map between 28000 and 200000
-                if(detectCount > 0.5*previousDetectCount){
+            if(cameraControl) { //If the amount of movement is above a certain threshold, map it to a decibel gain value for the bass boost
+                if(detectCount > 0.5*previousDetectCount){ //Ignore sudden changes in detected pixels which probably come from the lag
                     bassBoost.gain.value = mapRange(23000, 200000, 1, 35, detectCount);
                     document.querySelector("#bass").value = bassBoost.gain.value;
                     document.querySelector("#bassResults").innerHTML = bassBoost.gain.value;
-                    console.log(detectCount, bassBoost.gain.value);
                 }
                 previousDetectCount = detectCount;
             }
-
 
             oldVideo = currVideo;
             topCtx.putImageData(imageData, 0, 0);
         }
         
+        //Clamps values and maps from original range to destination range
         function mapRange(srcMin, srcMax, destMin, destMax, value){
             if(value>srcMax) return destMax;
             if(value<srcMin) return 0;
