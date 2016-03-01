@@ -371,8 +371,6 @@ audio {
             
             audioElement.onended=function(){
                 
-                console.log("called playNext");
-                
             if (currentSong == SOUND_1)
                 {
                   currentSong = SOUND_2;
@@ -478,7 +476,9 @@ audio {
             var barWidth = 4;
             topCtx.save();
             topCtx.translate(canvas.width/2, canvas.height/2);
+            //Rotate the equalizer
             topCtx.rotate(equalizerRotation);
+            //Increment the rotation for the next time
             equalizerRotation += rotationIncrement;
             topCtx.fillStyle = 'rgba(240, 127, 255, 0.9)'; 
 
@@ -496,6 +496,7 @@ audio {
             ctx.save();
             ctx.strokeStyle = waveGrad;
             ctx.lineWidth = 2;
+            //Draw multiple connected lines according to the waveform data
             ctx.beginPath();
             ctx.moveTo(0, canvas.height/2);
             for(var i=0; i<waveformData.length; i++){
@@ -640,6 +641,7 @@ audio {
                 }
             }
 
+            //Tint depending on chosen color
             if(tint){
                 switch(tintColor){
                     case "red":
@@ -697,7 +699,7 @@ audio {
             
             var detectCount = 0; //How much movement has been detected
 
-            if(oldVideo != null){
+            if(oldVideo != null){ //If a pixel has changed by more than 15, paint it on the top canvas and increase the counter
                 for( var y = 0 ; y < cameraCanvas.height; y++ ) {
                 for( var x = 0 ; x < cameraCanvas.width; x++ ) {
                 
