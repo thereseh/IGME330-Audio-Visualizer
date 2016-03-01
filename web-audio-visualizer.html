@@ -403,7 +403,8 @@
             motionDetection();
             drawEqualizer();
             
-            manipulatePixels();
+            manipulatePixels(ctx);
+            manipulatePixels(topCtx);
              
         } 
         
@@ -553,7 +554,7 @@
     }
 
         
-        function manipulatePixels(){
+        function manipulatePixels(ctx){
             //i) Get all of the rgba pixel data of the canvas by grabbing the ImageData Object
         
             // https://developer.mozilla.org/en-US/docs/Web/API/ImageData
