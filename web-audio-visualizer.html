@@ -11,192 +11,213 @@
          font-family: tahoma, verdana, sans serif;
       }
 
-        /*Can't use display: none or the video's size goes to 0 x 0*/
-  video{
-    visibility: hidden;
-  }
+      video{
+/*        display: none;*/
+        visibility: hidden;
+      }
 
     div{
         margin-bottom: 5%;
     }
 
-    /* Equalizer and camera is drawn here so we can blur */
-    #topCanvas {
+        /* Equalizer and camera is drawn here so we can blur
+        http://thenewcode.com/534/Crossbrowser-Image-Blur-with-CSS*/
+        
+        #topCanvas {
         -webkit-filter: blur(7px);
         margin-top:10px;
-        z-index: 1;
-    }
-
-    /* ---------- */
-
-    /* This is the main canvas */
-    #canvas {
+		z-index: 1;
+	  }
+        
+        /* ---------- */
+        
+        /* This is the main canvas */
+      #canvas {
         position: absolute;
         margin-top:10px;
         z-index: 0;
         background: black;
         border: 5px solid #5f8574;
-    }
+        }
+        
+        /* Stylised sliders using -webkit- plugin 
+        http://danielstern.ca/range.css/#/ 
+        This site allows you to create a stylised slider!
+        */
+        input[type=range] {
+          -webkit-appearance: none;
+          width: 100%;
+          margin: 6.9px 0;
+        }
+        
+        input[type=range]:focus {
+          outline: none;
+        }
+        
+        
+        input[type=range]::-webkit-slider-runnable-track {
+          width: 100%;
+          height: 6.2px;
+          cursor: pointer;
+          box-shadow: 0.6px 0.6px 0.9px #2b3371, 0px 0px 0.6px #323b83;
+          background: #ffffd7;
+          border-radius: 25px;
+          border: 0px solid rgba(211, 64, 161, 0.35);
+        }
+        input[type=range]::-webkit-slider-thumb {
+          box-shadow: 0.6px 0.6px 1.2px #000000, 0px 0px 0.6px #0d0d0d;
+          border: 0.4px solid #ffffff;
+            
+        /* Equal height and width creates a circle */
+          height: 20px;
+          width: 20px;
+          border-radius: 50px;
+          background: #5f8574;
+          cursor: pointer;
+          -webkit-appearance: none;
+          margin-top: -6.9px;
+        }
+        input[type=range]:focus::-webkit-slider-runnable-track {
+          background: #ffffff;
+        }
+        
+         
+       input[type=range]:disabled::-webkit-slider-thumb {
+          background: rgba(115, 115, 115, 0.5);
+        }
+        
+        input[type=range]:disabled::-webkit-slider-runnable-track 
+        {
+          background: rgba(115, 115, 115, 0.5);
+        }
+        
+        .sliders {
+            margin-top: 85px;
+        }
+        
+        /*----------------------------*/
+    
+        /* Stylised checkboxes using gradient
+        http://www.hongkiat.com/blog/css3-checkbox-radio/
+        this site gave us an idea of how to stylise checkboxes!
+        */
+        .checkboxes label {
+            display: block;
+            float:left;
+            cursor: pointer;
+            position: relative;
+            padding-left: 25px;
+            margin-left: 10px;
+            margin-bottom: -10px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        
+        input[type=checkbox] {
+            display: none;
+        }
+        
+        .checkboxes label:before {
+            border-radius: 3px;
+            content: "";
+            display: inline-block;
 
-    /* Stylised sliders using -webkit- plugin 
-    http://danielstern.ca/range.css/#/ 
-    This site allows you to create a stylised slider!
-    */
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%;
-      margin: 6.9px 0;
-    }
+            width: 16px;
+            height: 16px;
 
-    input[type=range]:focus {
-      outline: none;
-    }
+            margin-right: 10px;
+            position: absolute;
+            left: 0;
+            bottom: 1px;
+            background-color: #5f8574;
+            box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
+        }
+        
+        input[type=checkbox]:checked + label:before {
+            background-color: #5f8574;
+            content: "\2713";
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
+            font-size: 15px;
+            color: #f3f3f3;
+            text-align: right;
+            line-height: 15px;
+        }
         
 
-    input[type=range]::-webkit-slider-runnable-track {
-      width: 100%;
-      height: 6.2px;
-      cursor: pointer;
-      box-shadow: 0.6px 0.6px 0.9px #2b3371, 0px 0px 0.6px #323b83;
-      background: #ffffd7;
-      border-radius: 25px;
-      border: 0px solid rgba(211, 64, 161, 0.35);
-    }
-    input[type=range]::-webkit-slider-thumb {
-      box-shadow: 0.6px 0.6px 1.2px #000000, 0px 0px 0.6px #0d0d0d;
-      border: 0.4px solid #ffffff;
-
-    /* Equal height and width creates a circle */
-      height: 20px;
-      width: 20px;
-      border-radius: 50px;
-      background: #5f8574;
-      cursor: pointer;
-      -webkit-appearance: none;
-      margin-top: -6.9px;
-    }
-    input[type=range]:focus::-webkit-slider-runnable-track {
-      background: #ffffff;
-    }
-
-    /*----------------------------*/
-
-    /* Stylised checkboxes using gradient
-    http://www.hongkiat.com/blog/css3-checkbox-radio/
-    this site gave us an idea of how to stylise checkboxes!
-    */
-    .checkboxes label {
-        display: inline-block;
-        cursor: pointer;
-        position: relative;
-        padding-left: 25px;
-        margin-left: 10px;
-        margin-bottom: -30px;
-        margin-top: 15px;
-        font-size: 13px;
-    }
-
-    input[type=checkbox] {
-        display: none;
-    }
-
-    .checkboxes label:before {
-        border-radius: 3px;
-        content: "";
-        display: inline-block;
-
-        width: 16px;
-        height: 16px;
-
-        margin-right: 10px;
-        position: absolute;
-        left: 0;
-        bottom: 1px;
-        background-color: #5f8574;
-        box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
-    }
-    input[type=checkbox]:checked + label:before {
-        background-color: #5f8574;
-        content: "\2713";
-        text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
-        font-size: 15px;
-        color: #f3f3f3;
-        text-align: right;
-        line-height: 15px;
-    }
-
-    #trackSelect {
-        width: 100%;
-    }
-
-    #tintColor {
-        margin-left: 10px;
-    }
-
-
-
-     /*----------------------------*/
-
-    /* Using our webfont, taken from google fonts */
-     h1 {   
-        font-family: 'Stalemate', normal, Arial, Helvetica, Geneva, sans-serif;;
-        font-weight: 400;
-        font-size: 42px;
-        color: #F0E68C;
-        margin-top: 0px;
-        margin-left: 5px;
-        margin-bottom: 50px;
-    }
-
-    p {
+        #trackSelect {
+            width: 100%;
+        }
+        
+        #tintColor {
+            margin-top: 13px;
+            margin-left: 10px;
+            margin-bottom: -10px;
+        }
+             
+        
+         /*----------------------------*/
+       
+        /* Using our webfont, taken from google fonts */
+         h1 {   
+            font-family: 'Stalemate', normal, Arial, Helvetica, Geneva, sans-serif;;
+            font-weight: 400;
+            font-size: 42px;
+            color: #F0E68C;
+            margin-top: 0px;
+            margin-left: 5px;
+            margin-bottom: 50px;
+        }
+        
+        p {
+            font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
+        }
+        
+         /* This is the text that displays the song that's playing,
+        it also have the same font as the "p" text, gave it it's one tag because
+        we wanted to have it in bold'*/
+        #status {
+            margin-top:-30px;
+            margin-bottom:20px;
+            font-weight: 700;
+        }
+        
+        
+         /* Adding some space between labels*/
+        label {
+            margin-top:10px;
+            margin-bottom:10px;
+        }
+        
+        /* change the font in the drop down menus,
+        and to add some spacing, and rounding the corners*/
+        select {
+            margin-top: 5px;
+            color: #3f5a4e;
+            border-radius: 5px;
+        }
+        
+        
+      #controls, canvas, topCanvas {
+        float: left;
+      }
+        
+        /* General code for all
+        controls elements, such as pont*/
+      #controls {
+        width: 300px;
+        height: 562px;
         font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
-    }
-
-     /* This is the text that displays the song that's playing,
-    it also have the same font as the "p" text, gave it it's one tag because
-    we wanted to have it in bold'*/
-    #status {
-        margin-top:-30px;
-        margin-bottom:20px;
-        font-weight: 700;
-    }
-
-     /* Adding some space between labels*/
-    label {
-        margin-top:10px;
-        margin-bottom:20px;
-    }
-
-    /* change the font in the drop down menus,
-    and to add some spacing, and rounding the corners*/
-    select {
-        margin-top: 5px;
-        color: #3f5a4e;
-        border-radius: 5px;
-    }
-
-
-  #controls, canvas, topCanvas {
-    float: left;
-  }
-
-    /* General code for all
-    controls elements, such as pont*/
-  #controls {
-    width: 300px;
-    height: 562px;
-    font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
-    background-color: #595959;
-    box-shadow: inset 0px 0px 10px rgba(0,0,0,0.9);
-    border: 5px solid #5f8574;
-    padding: 1%;
-    margin-top: 10px;
-    margin-left: 5px;
-  }
+        background-color: #595959;
+        box-shadow: inset 0px 0px 10px rgba(0,0,0,0.9);
+        border: 5px solid #5f8574;
+        padding: 1%;
+        margin-top: 10px;
+        margin-left: 5px;
+      }
         
-audio {
-    background: rgba(90, 90, 90, 1.0);
-}
+         audio {
+            background: rgba(90, 90, 90, 1.0);           margin-bottom: -35px;      
+        }
     
     </style>
     <script>
@@ -207,12 +228,13 @@ audio {
         var NUM_SAMPLES = 256;
         var SOUND_1 = 'media/Celldweller - Frozen (Celldweller vs Blue Stahli).mp3';
         var SOUND_2 = 'media/Evanescence - Lacrymosa.mp3';
-        var SOUND_3 = 'media/Celldweller - The Last Firstborn (Remixed by Klayton).mp3';
+        var SOUND_3 = 'media/Ali Project - Datengoku Sensen.mp3';
 
         var audioElement, audioCtx;
         var analyserNode;
         var canvas,ctx, cameraCanvas, videoElement, cameraCtx;
         var maxRadius = 200;
+//        var invert = false, tint = false, tintColor = "red";
         var invert = false, tint = false, tintColor = 'red', detect = false, cameraControl = false;
         var desat = 0.0;
         var equalizerRotation = 0, rotationIncrement = 2*Math.PI/400;
@@ -235,7 +257,6 @@ audio {
             cameraCtx = cameraCanvas.getContext("2d");
             cameraCanvas.style.display = "none";
 
-            /*Request webcam. This code came from the motion detection example in myCourses.*/
             if(navigator.webkitGetUserMedia!=null) { 
                 var options = { 
                     video:true, 
@@ -255,12 +276,11 @@ audio {
                     } 
                 ); 
             };
-            
-            
             topCanvas = document.querySelector('#topCanvas');
 		    topCtx = topCanvas.getContext('2d');
             
-            /*Create gradient for the waveform line*/
+            
+            // adding a gradient over the waveform, as to dimm out the endpoints
             waveGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
             waveGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
             waveGrad.addColorStop(1/3, "white");
@@ -296,11 +316,13 @@ audio {
             // create an analyser node
             analyserNode = audioCtx.createAnalyser();
             
-            /*Create bass boost filter. This came from https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API */
+           /* 
+           Code for bassboost came from here:
+           https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API */
             bassBoost = audioCtx.createBiquadFilter();
             bassBoost.type = "lowshelf";
             bassBoost.frequency.value = 900;
-            bassBoost.gain.value = 25;
+            bassBoost.gain.value = 0;
             bassBoost.connect(analyserNode);
             
             /*
@@ -345,7 +367,6 @@ audio {
                 detect = e.target.checked;
             };
             
-            /*Disables bass boost slider if camera controls are enabled*/
             document.getElementById('camera').onchange = function(e){
                 cameraControl = e.target.checked;
                 if(Boolean(cameraControl)) document.querySelector("#bass").disabled = true;
@@ -358,6 +379,7 @@ audio {
 
             document.getElementById("tintColor").onchange = function(e){
                 tintColor = e.target.value;
+                console.log(tintColor);
             };
             
             document.querySelector("#desat").onchange = function(e){
@@ -369,7 +391,11 @@ audio {
                 bassBoost.gain.value = e.target.value;
              };
             
+            
+            /* Checks if the song is done*/
             audioElement.onended=function(){
+                
+                console.log("called playNext");
                 
             if (currentSong == SOUND_1)
                 {
@@ -402,8 +428,6 @@ audio {
         function update() { 
             // this schedules a call to the update() method in 1/60 seconds
             requestAnimationFrame(update);
-            
-            /*Limit it to 30FPS*/
             frameCounter++;
             if(frameCounter >= 600) frameCounter = 0;
             if(frameCounter%2 == 0) return;
@@ -423,9 +447,10 @@ audio {
             // notice these arrays can be passed "by reference" 
             analyserNode.getByteFrequencyData(data);
         
+            // OR
             analyserNode.getByteTimeDomainData(waveformData); // waveform data
             
-            for(var i=0; i<waveformData.length; i++) //Bump up any differences so it's less uniform in the visualizer
+            for(var i=0; i<waveformData.length; i++) 
                 waveformData[i] *= 3;
             
             maxRadius = document.querySelector("#maxRadius").value;
@@ -438,14 +463,20 @@ audio {
 
             // drawing bezier curves
             // color, scaling, where to move it
-            
             drawCurve();
-            drawRectangle();         
+            
+            // we are not drawing the rectangles if the song is paused
+            if (!audioElement.paused)
+                {
+            drawRectangle(); 
+                }
+            
             drawWaveform();
         
             if(detect) motionDetection();
             drawEqualizer();
             
+            // for each canvas
             manipulatePixels(ctx);
             manipulatePixels(topCtx);
              
@@ -457,28 +488,12 @@ audio {
             return color;
         }
         
-         // FULL SCREEN MODE
-        function requestFullscreen(element) {
-            if (element.requestFullscreen) {
-              element.requestFullscreen();
-            } else if (element.mozRequestFullscreen) {
-              element.mozRequestFullscreen();
-            } else if (element.mozRequestFullScreen) { // camel-cased 'S' was changed to 's' in spec
-              element.mozRequestFullScreen();
-            } else if (element.webkitRequestFullscreen) {
-              element.webkitRequestFullscreen();
-            }
-            // .. and do nothing if the method is not supported
-        };
-        
-        /*Draws the circle equalizer*/
         function drawEqualizer(){
             var barWidth = 4;
+            //var innerRadius = 35;
             topCtx.save();
             topCtx.translate(canvas.width/2, canvas.height/2);
-            //Rotate the equalizer
             topCtx.rotate(equalizerRotation);
-            //Increment the rotation for the next time
             equalizerRotation += rotationIncrement;
             topCtx.fillStyle = 'rgba(240, 127, 255, 0.9)'; 
 
@@ -491,12 +506,10 @@ audio {
             topCtx.restore();
         }
         
-        /*Draws the waveform line*/
         function drawWaveform(){
             ctx.save();
             ctx.strokeStyle = waveGrad;
             ctx.lineWidth = 2;
-            //Draw multiple connected lines according to the waveform data
             ctx.beginPath();
             ctx.moveTo(0, canvas.height/2);
             for(var i=0; i<waveformData.length; i++){
@@ -506,6 +519,7 @@ audio {
             ctx.restore();
         }
         
+        // this function is providing info needed to draw the curves
         function drawCurve()
         {
             drawCurves('rgba(114, 38, 38, 0.30)', 0.8, canvas.width/2, canvas.height/2);
@@ -517,6 +531,7 @@ audio {
             drawCurves('rgba(66, 35, 96, 0.05)', 1.18, canvas.width/2, canvas.height/2);
             drawCurves('rgba(66, 35, 96, 0.02)', 1.20, canvas.width/2, canvas.height/2);
         }
+        
         
         // using bezier curve to create the flower shape
         function drawCurves(color, scale, transX, transY) {
@@ -556,15 +571,17 @@ audio {
         }
         
         
-        // draws the rectangles and move them to the waveform data
+        // function to call 
+        // function to draws the rectangles and move them to the waveform data
         function drawRectangle() {
              ctx.save();
             
             // create a number of 19 bars
             for (var i = 0; i < 20; i++)
                 {
-               
-                var random = (Math.random() * 12) + 10;
+            
+            // adding a random element so they change sizes for each draw
+            var random = (Math.random() * 12) + 10;
             // left to right, big to small
             drawRectangles('#180528', 5 + (i*32), 16, 100 - (i*random));
             // right to left, big to small
@@ -589,6 +606,7 @@ audio {
             ctx.restore();          
         }
         
+        // moving them to waveformData
         function drawRectangles(color, originX, width, height, alp) {
          ctx.save();
          ctx.fillStyle = color;
@@ -609,6 +627,8 @@ audio {
             var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             
             //ii) imageData.data is an 8-bit array - values range from 0-255
+            //imageData.data contains 4 values per pixel: 4 x canvas.width x canvas.height = 1024000 values!
+            //we're looping through this 60 FPS - wow!
             var data = imageData.data;
             var length = data.length;
             var width = imageData.width;
@@ -620,7 +640,7 @@ audio {
             //data[i+2] is the blue value
             //data[i+3] is the alpha value
             
-            //v) Invert every color channel
+            //iv) Invert every color channel
             if(invert){
                 for(var i=0; i<length; i+=4){
                     var red = data[i], green = data[i+1], blue = data[i+2];
@@ -631,17 +651,18 @@ audio {
                 }
             }
             
-            //Desaturation
+            //v) Desaturate every color channel
             if(desat != 0){
                 for(var i=0; i<length; i+=4){
                     var avg = (data[i]+data[i+1]+data[i+2])/3;
                     data[i] = desat*avg + (1-desat)*data[i];
                     data[i+1] = desat*avg + (1-desat)*data[i+1];
                     data[i+2] = desat*avg + (1-desat)*data[i+2];
+
                 }
             }
-
-            //Tint depending on chosen color
+            
+            //vi Tint the canvas with different colors
             if(tint){
                 switch(tintColor){
                     case "red":
@@ -684,10 +705,10 @@ audio {
             //put the modified data back on the canvas
             ctx.putImageData(imageData, 0, 0);
         }
+        
+        
 
-        /*This came from the motion detection example on myCourses*/
         function motionDetection(){
-            
             cameraCtx.drawImage(videoElement, 0, 0, cameraCanvas.width, cameraCanvas.height);
             var currVideoData = cameraCtx.getImageData(0, 0, cameraCanvas.width, cameraCanvas.height);
             var imageData = topCtx.getImageData(0, 0, topCanvas.width, topCanvas.height);
@@ -697,42 +718,58 @@ audio {
             var length = currVideo.length;
             var width = currVideo.width;
             
-            var detectCount = 0; //How much movement has been detected
+            var detectCount = 0;
 
-            if(oldVideo != null){ //If a pixel has changed by more than 15, paint it on the top canvas and increase the counter
+            if(oldVideo != null){
                 for( var y = 0 ; y < cameraCanvas.height; y++ ) {
                 for( var x = 0 ; x < cameraCanvas.width; x++ ) {
                 
                     var indexOld = (y * cameraCanvas.width + x) * 4, oldr = oldVideo[indexOld], oldg = oldVideo[indexOld+1], oldb = oldVideo[indexOld+2], olda = oldVideo[indexOld+3];
                     var indexNew = (y * cameraCanvas.width + x) * 4, r = currVideo[indexNew], g = currVideo[indexNew+1], b = currVideo[indexNew+2], a = currVideo[indexNew+3];
                     if (oldr > r - 15 || oldg > g - 15 || oldb > b - 15) {
- 
+                    /*
+                        data[indexNew] = 255;
+                        data[indexNew+1] = 255; 
+                        data[indexNew+2] = 255; 
+                        data[indexNew+3] = 255; 
+                        detected = true;
+                        */
                     } else {
+                    
+//                        currVideo[indexNew] = 255; 
+//                        currVideo[indexNew+1] = 0; 
+//                        currVideo[indexNew+2] = 0; 
+//                        currVideo[indexNew+3] = 255;
+            //            rgba(247, 109, 183, 0.5)
                         data[indexNew] = 247; 
                         data[indexNew+1] = 109; 
                         data[indexNew+2] = 183; 
                         data[indexNew+3] = 0.4*255;
                         detectCount++;
+                        
                     }
+                    
                   } // end for x
                  } // end for y
             }
             
             
-            if(cameraControl) { //If the amount of movement is above a certain threshold, map it to a decibel gain value for the bass boost
-                if(detectCount > 0.5*previousDetectCount){ //Ignore sudden changes in detected pixels which probably come from the lag
+            if(cameraControl) {
+                //map between 28000 and 200000
+                if(detectCount > 0.5*previousDetectCount){
                     bassBoost.gain.value = mapRange(23000, 200000, 1, 35, detectCount);
                     document.querySelector("#bass").value = bassBoost.gain.value;
                     document.querySelector("#bassResults").innerHTML = bassBoost.gain.value;
+                    console.log(detectCount, bassBoost.gain.value);
                 }
                 previousDetectCount = detectCount;
             }
+
 
             oldVideo = currVideo;
             topCtx.putImageData(imageData, 0, 0);
         }
         
-        //Clamps values and maps from original range to destination range
         function mapRange(srcMin, srcMax, destMin, destMax, value){
             if(value>srcMax) return destMax;
             if(value<srcMin) return 0;
@@ -759,7 +796,7 @@ audio {
             <select id="trackSelect" >
                 <option value="media/Celldweller - Frozen (Celldweller vs Blue Stahli).mp3">Celldweller - Frozen (Celldweller vs Blue Stahli)</option>
                 <option value="media/Evanescence - Lacrymosa.mp3">Evanescence - Lacrymosa.mp3</option>
-                <option value="media/Celldweller - The Last Firstborn (Remixed by Klayton).mp3">Celldweller - The Last Firstborn (Remixed by Klayton)</option>
+                <option value="media/Ali Project - Datengoku Sensen.mp3">Ali Project - Datengoku Sensen</option>
             </select>
           </label>
         </p>
@@ -797,6 +834,7 @@ audio {
             </p>
         </div>
            
+           <div class="sliders">
        <div title="Disabled if Camera controls checked.">
            <label for="bass">Bass boost</label>
            <input id="bass" type ="range" min ="0" max="35" step ="5" value ="0"/>
@@ -813,6 +851,7 @@ audio {
            <input id="desat" type ="range" min ="0" max="100" step ="5" value ="0"/>
            <span  id="desatResults">0%</span>
        </div>
+        </div>
         <audio controls></audio>
 
     </div>
