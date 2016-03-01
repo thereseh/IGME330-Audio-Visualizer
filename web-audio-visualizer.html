@@ -187,12 +187,12 @@
         var SOUND_2 = 'media/Evanescence - Lacrymosa.mp3';
         var SOUND_3 = 'media/Celldweller - The Last Firstborn (Remixed by Klayton).mp3';
 
-        var audioElement;
+        var audioElement, audioCtx;
         var analyserNode;
         var canvas,ctx, cameraCanvas, videoElement, cameraCtx;
         var maxRadius = 200;
 //        var invert = false, tint = false, tintColor = "red";
-        var invert = false, tint = false, tintColor = 'red';
+        var invert = false, tint = false, tintColor = 'red', detect = false, cameraControl = false;
         var desat = 0.0;
         var equalizerRotation = 0, rotationIncrement = 2*Math.PI/400;
         var waveGrad, data, waveformData, currentSong, alpha = 1;
@@ -200,6 +200,7 @@
         var currVideo, oldVideo;
         var topCanvas, topCtx;
         var frameCounter = 0;
+        var bassBoost, previousDetectCount = 0;
 
         
         function init(){
@@ -244,8 +245,10 @@
             // get reference to <audio> element on page
             audioElement = document.querySelector('audio');
             
+            
             // call our helper function and get an analyser node
             analyserNode = createWebAudioContextWithAnalyserNode(audioElement);
+
             
             // get sound track <select> and Full Screen button working
             setupUI();
@@ -259,7 +262,7 @@
         
         
         function createWebAudioContextWithAnalyserNode(audioElement) {
-            var audioCtx, analyserNode, sourceNode;
+            var analyserNode, sourceNode;
             // create new AudioContext
             // The || is because WebAudio has not been standardized across browsers yet
             // http://webaudio.github.io/web-audio-api/#the-audiocontext-interface
@@ -267,6 +270,13 @@
             
             // create an analyser node
             analyserNode = audioCtx.createAnalyser();
+            
+            
+            bassBoost = audioCtx.createBiquadFilter();
+            bassBoost.type = "lowshelf";
+            bassBoost.frequency.value = 900;
+            bassBoost.gain.value = 25;
+            bassBoost.connect(analyserNode);
             
             /*
             We will request NUM_SAMPLES number of samples or "bins" spaced equally 
@@ -282,7 +292,7 @@
             
             // this is where we hook up the <audio> element to the analyserNode
             sourceNode = audioCtx.createMediaElementSource(audioElement); 
-            sourceNode.connect(analyserNode);
+            sourceNode.connect(bassBoost);
             
             // here we connect to the destination i.e. speakers
             analyserNode.connect(audioCtx.destination);
@@ -297,10 +307,6 @@
                 currentSong = e.target.value;
             };
             
-            document.querySelector("#fsButton").onclick = function(){
-                requestFullscreen(canvas);
-            };
-            
             document.querySelector("#maxRadius").onchange = function(e){
                  document.querySelector("#sliderResults").innerHTML = e.target.value;
                 innerRadius = e.target.value;
@@ -308,6 +314,16 @@
             
             document.getElementById('invert').onchange = function(e){
                 invert = e.target.checked;
+            };
+            
+            document.getElementById('motion').onchange = function(e){
+                detect = e.target.checked;
+            };
+            
+            document.getElementById('camera').onchange = function(e){
+                cameraControl = e.target.checked;
+                if(Boolean(cameraControl)) document.querySelector("#bass").disabled = true;
+                else document.querySelector("#bass").disabled = false;
             };
             
             document.getElementById('tint').onchange = function(e){
@@ -321,6 +337,11 @@
             
             document.querySelector("#desat").onchange = function(e){
                  document.querySelector("#desatResults").innerHTML = e.target.value+"%";
+             };
+            
+            document.querySelector("#bass").onchange = function(e){
+                 document.querySelector("#bassResults").innerHTML = e.target.value;
+                bassBoost.gain.value = e.target.value;
              };
             
             audioElement.onended=function(){
@@ -400,7 +421,7 @@
             
             drawWaveform();
         
-            motionDetection();
+            if(detect) motionDetection();
             drawEqualizer();
             
             manipulatePixels(ctx);
@@ -632,6 +653,8 @@
             currVideo = currVideoData.data;
             var length = currVideo.length;
             var width = currVideo.width;
+            
+            var detectCount = 0;
 
             if(oldVideo != null){
                 for( var y = 0 ; y < cameraCanvas.height; y++ ) {
@@ -658,18 +681,35 @@
                         data[indexNew+1] = 109; 
                         data[indexNew+2] = 183; 
                         data[indexNew+3] = 0.4*255;
+                        detectCount++;
                         
                     }
                     
                   } // end for x
                  } // end for y
             }
+            
+            
+            if(cameraControl) {
+                //map between 28000 and 200000
+                if(detectCount > 0.5*previousDetectCount){
+                    bassBoost.gain.value = mapRange(23000, 200000, 1, 35, detectCount);
+                    document.querySelector("#bass").value = bassBoost.gain.value;
+                    document.querySelector("#bassResults").innerHTML = bassBoost.gain.value;
+                    console.log(detectCount, bassBoost.gain.value);
+                }
+                previousDetectCount = detectCount;
+            }
 
 
             oldVideo = currVideo;
-
-//            ctx.putImageData(currVideoData, 0, 0);
             topCtx.putImageData(imageData, 0, 0);
+        }
+        
+        function mapRange(srcMin, srcMax, destMin, destMax, value){
+            if(value>srcMax) return destMax;
+            if(value<srcMin) return 0;
+            return (value - srcMin)*(destMax - destMin)/(srcMax - srcMin) + destMin;
         }
         
         
@@ -714,7 +754,25 @@
                   <option value="green">Green</option>
               </select>
             </span>
+            
+            <p>
+                <span title="Enables camera and shows motion detection trails.">
+                  <input type="checkbox" unchecked id="motion">
+                  <label for="motion">Motion detection</label>
+                </span>
+
+                <span title="Bass boost increases according to movement. Does not work if motion detection unchecked.">
+                  <input type="checkbox" unchecked id="camera">
+                  <label for="camera">Camera controls boost</label>
+                </span>
+            </p>
         </div>
+           
+       <div title="Disabled if Camera controls checked.">
+           <label for="bass">Bass boost</label>
+           <input id="bass" type ="range" min ="0" max="35" step ="5" value ="0"/>
+           <span  id="bassResults">0</span>
+       </div>
            
             <label for="maxRadius">Equalizer radius</label>
            <input id="maxRadius" type ="range" min ="25" max="100" step ="5" value ="35"/>
@@ -726,7 +784,7 @@
            <input id="desat" type ="range" min ="0" max="100" step ="5" value ="0"/>
            <span  id="desatResults">0%</span>
        </div>
-        <button id="fsButton">Go Full Screen</button><br>
+
         <audio controls></audio>
 
     </div>
