@@ -12,13 +12,19 @@
       }
 
       video{
-/*        display: none;*/
         visibility: hidden;
       }
 
     div{
         margin-bottom: 5%;
     }
+        a{
+            color: #edb3b3;
+        }
+        
+        #tracks{
+            margin-top: 0;
+        }
 
         /* Equalizer and camera is drawn here so we can blur
         http://thenewcode.com/534/Crossbrowser-Image-Blur-with-CSS*/
@@ -165,22 +171,11 @@
             color: #F0E68C;
             margin-top: 0px;
             margin-left: 5px;
-            margin-bottom: 50px;
         }
         
         p {
             font: 15px 'Helvetica', Arial, Helvetica, Geneva, sans-serif;
         }
-        
-         /* This is the text that displays the song that's playing,
-        it also have the same font as the "p" text, gave it it's one tag because
-        we wanted to have it in bold'*/
-        #status {
-            margin-top:-30px;
-            margin-bottom:20px;
-            font-weight: 700;
-        }
-        
         
          /* Adding some space between labels*/
         label {
@@ -226,9 +221,9 @@
         "use strict";
         
         var NUM_SAMPLES = 256;
-        var SOUND_1 = 'media/Celldweller - Frozen (Celldweller vs Blue Stahli).mp3';
-        var SOUND_2 = 'media/Evanescence - Lacrymosa.mp3';
-        var SOUND_3 = 'media/Ali Project - Datengoku Sensen.mp3';
+        var SOUND_1 = 'media/8-Bit Bomber.mp3';
+        var SOUND_2 = 'media/Magic.mp3';
+        var SOUND_3 = 'media/Our Hero\'s Funeral March.mp3';
 
         var audioElement, audioCtx;
         var analyserNode;
@@ -422,7 +417,6 @@
             audioElement.src = path;
             audioElement.play();
             audioElement.volume = 0.2;
-            document.querySelector('#status').innerHTML = "Now playing: " + path;
         }
         
         function update() { 
@@ -727,20 +721,9 @@
                     var indexOld = (y * cameraCanvas.width + x) * 4, oldr = oldVideo[indexOld], oldg = oldVideo[indexOld+1], oldb = oldVideo[indexOld+2], olda = oldVideo[indexOld+3];
                     var indexNew = (y * cameraCanvas.width + x) * 4, r = currVideo[indexNew], g = currVideo[indexNew+1], b = currVideo[indexNew+2], a = currVideo[indexNew+3];
                     if (oldr > r - 15 || oldg > g - 15 || oldb > b - 15) {
-                    /*
-                        data[indexNew] = 255;
-                        data[indexNew+1] = 255; 
-                        data[indexNew+2] = 255; 
-                        data[indexNew+3] = 255; 
-                        detected = true;
-                        */
+
                     } else {
                     
-//                        currVideo[indexNew] = 255; 
-//                        currVideo[indexNew+1] = 0; 
-//                        currVideo[indexNew+2] = 0; 
-//                        currVideo[indexNew+3] = 255;
-            //            rgba(247, 109, 183, 0.5)
                         data[indexNew] = 247; 
                         data[indexNew+1] = 109; 
                         data[indexNew+2] = 183; 
@@ -790,16 +773,18 @@
     <div id="controls">
           <h1>SwedZilla Audio Visualizer</h1>
         
-        <p id="status">???</p>
-        <p>
+        <p id="tracks">
             <label>Track: 
             <select id="trackSelect" >
-                <option value="media/Celldweller - Frozen (Celldweller vs Blue Stahli).mp3">Celldweller - Frozen (Celldweller vs Blue Stahli)</option>
-                <option value="media/Evanescence - Lacrymosa.mp3">Evanescence - Lacrymosa.mp3</option>
-                <option value="media/Ali Project - Datengoku Sensen.mp3">Ali Project - Datengoku Sensen</option>
+                <option value="media/8-Bit Bomber.mp3">Stratkat - 8-Bit Bomber</option>
+                <option value="media/Magic.mp3">Stratkat - Magic</option>
+                <option value="media/Our Hero's Funeral March.mp3">Stratkat - Our Hero's Funeral March</option>
             </select>
           </label>
         </p>
+        <p><a href="https://github.com/yaragg/IGME330-Audio-Visualizer" target="_blank">Music credits</a></p>
+
+
         
        <div>
         
@@ -855,6 +840,7 @@
         <audio controls></audio>
 
     </div>
+
     <video width = "900" height="600" autoplay></video>
 </body>
 </html>
