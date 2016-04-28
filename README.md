@@ -1,5 +1,5 @@
 # IGME330-Audio-Visualizer
-[View online!](https://yaragg.github.io/IGME330-Audio-Visualizer)
+[View online!](http://yaragg.github.io/IGME330-Audio-Visualizer)
 
 ##Credits
 ###Music tracks
